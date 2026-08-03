@@ -1,0 +1,23 @@
+{
+	"name": "ds_source_onehub_lake_copy_to_silver",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls_monali_batch18",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "source",
+				"fileSystem": "onehubdatalake"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
