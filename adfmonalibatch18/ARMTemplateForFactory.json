@@ -115,7 +115,7 @@
 							},
 							"activities": [
 								{
-									"name": "Copy data from source to silver_copy1",
+									"name": "Copy data from source to silver",
 									"type": "Copy",
 									"dependsOn": [],
 									"policy": {
@@ -165,7 +165,7 @@
 											"type": "DatasetReference",
 											"parameters": {
 												"filename": {
-													"value": "@item()",
+													"value": "@item().name",
 													"type": "Expression"
 												}
 											}
