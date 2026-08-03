@@ -20,6 +20,8 @@
 						"storeSettings": {
 							"type": "AzureBlobFSReadSettings",
 							"recursive": true,
+							"wildcardFolderPath": "source",
+							"wildcardFileName": "*",
 							"enablePartitionDiscovery": false
 						},
 						"formatSettings": {
@@ -55,7 +57,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "ds_target_onehub_copy_to_silver",
+						"referenceName": "ds_target_onehub_lake_copy_to_silver",
 						"type": "DatasetReference"
 					}
 				]
