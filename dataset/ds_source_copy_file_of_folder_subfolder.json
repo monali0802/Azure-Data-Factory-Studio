@@ -1,0 +1,23 @@
+{
+	"name": "ds_source_copy_file_of_folder_subfolder",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls_monali_batch18",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "source",
+				"fileSystem": "gen2container"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
