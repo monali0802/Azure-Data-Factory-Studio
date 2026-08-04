@@ -267,6 +267,7 @@
 								],
 								"storeSettings": {
 									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
 									"enablePartitionDiscovery": false
 								},
 								"formatSettings": {
@@ -275,7 +276,7 @@
 							}
 						},
 						{
-							"name": "If Condition1",
+							"name": "If Condition to compare filesize",
 							"type": "IfCondition",
 							"dependsOn": [
 								{
@@ -285,7 +286,13 @@
 									]
 								}
 							],
-							"userProperties": []
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@greater(0, variables('LargestFileSize'))",
+									"type": "Expression"
+								}
+							}
 						}
 					]
 				}
@@ -295,6 +302,13 @@
 			"RequiredFiles": {
 				"type": "String",
 				"defaultValue": "[   \"MARA.csv\",   \"VBRK.csv\",   \"VBAP.csv\" ]"
+			},
+			"LargestFileName": {
+				"type": "String"
+			},
+			"LargestFileSize": {
+				"type": "Integer",
+				"defaultValue": 0
 			}
 		},
 		"annotations": []
