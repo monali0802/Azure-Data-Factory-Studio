@@ -1,0 +1,164 @@
+{
+	"name": "pl_get_largest_table_sql",
+	"properties": {
+		"activities": [
+			{
+				"name": "Lookup1",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT TOP (1)\n    s.name AS SchemaName,\n    t.name AS TableName,\n    SUM(p.rows) AS TotalRows\nFROM sys.tables t\nJOIN sys.schemas s\n    ON t.schema_id = s.schema_id\nJOIN sys.partitions p\n    ON t.object_id = p.object_id\nWHERE p.index_id IN (0,1)\nGROUP BY\n    s.name,\n    t.name\nORDER BY\n    TotalRows DESC;",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "ds_get_largest_table",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "Set variable1_copy1",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Lookup1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "LargestTableName",
+					"value": {
+						"value": "@activity('Lookup1').output.value[0].TableName",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Copy data1",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Set variable1_copy1_copy1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_source_copy_largest_sql_table",
+						"type": "DatasetReference",
+						"parameters": {
+							"schemaname": {
+								"value": "@variables('LargestSchemaName')",
+								"type": "Expression"
+							},
+							"tablename": {
+								"value": "@variables('LargestTableName')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_target_copy_largest_table",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
+				"name": "Set variable1_copy1_copy1",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "Set variable1_copy1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "LargestSchemaName",
+					"value": {
+						"value": "@activity('Lookup1').output.value[0].SchemaName",
+						"type": "Expression"
+					}
+				}
+			}
+		],
+		"variables": {
+			"LargestTableName": {
+				"type": "String"
+			},
+			"LargestColumnCount": {
+				"type": "Integer",
+				"defaultValue": 0
+			},
+			"LargestSchemaName": {
+				"type": "String"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2026-07-29T19:07:37Z"
+	}
+}
