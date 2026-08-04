@@ -25,6 +25,10 @@
 									},
 									"userProperties": [],
 									"typeProperties": {
+										"pipeline": {
+											"referenceName": "pl_copy_all_file",
+											"type": "PipelineReference"
+										},
 										"waitOnCompletion": true
 									}
 								}
@@ -43,7 +47,7 @@
 									"userProperties": [],
 									"typeProperties": {
 										"pipeline": {
-											"referenceName": "pl_get_metadata1",
+											"referenceName": "pl_copy_first_file",
 											"type": "PipelineReference"
 										},
 										"waitOnCompletion": true
