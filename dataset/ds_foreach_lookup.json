@@ -1,0 +1,12 @@
+{
+	"name": "ds_foreach_lookup",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_source_db_monali_batch18",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": []
+	}
+}
