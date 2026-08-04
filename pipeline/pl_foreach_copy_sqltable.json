@@ -49,8 +49,38 @@
 										"fileExtension": ".txt"
 									}
 								},
-								"enableStaging": false
-							}
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_source_copy_foreach_sqltable",
+									"type": "DatasetReference",
+									"parameters": {
+										"Schema_name": {
+											"value": "@item().TABLE_SCHEMA",
+											"type": "Expression"
+										},
+										"Table_name": {
+											"value": "@item().TABLE_NAME",
+											"type": "Expression"
+										}
+									}
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_target_copy_foreach_sqltable",
+									"type": "DatasetReference"
+								}
+							]
 						}
 					]
 				}
@@ -74,11 +104,16 @@
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
+					"dataset": {
+						"referenceName": "ds_foreach_lookup",
+						"type": "DatasetReference"
+					},
 					"firstRowOnly": false
 				}
 			}
 		],
 		"annotations": [],
 		"lastPublishTime": "2026-07-15T10:53:48Z"
-	}
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
 }
