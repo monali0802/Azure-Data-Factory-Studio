@@ -222,7 +222,7 @@
 				}
 			},
 			{
-				"name": "ForEach1",
+				"name": "ForEach to filter largest",
 				"type": "ForEach",
 				"dependsOn": [
 					{
@@ -234,9 +234,13 @@
 				],
 				"userProperties": [],
 				"typeProperties": {
+					"items": {
+						"value": "@activity('Get Metadata to get target silver files').output.childItems",
+						"type": "Expression"
+					},
 					"activities": [
 						{
-							"name": "Get Metadata1",
+							"name": "Get Metadata to get filesize",
 							"type": "GetMetadata",
 							"dependsOn": [],
 							"policy": {
@@ -246,14 +250,36 @@
 								"secureOutput": false,
 								"secureInput": false
 							},
-							"userProperties": []
+							"userProperties": [],
+							"typeProperties": {
+								"dataset": {
+									"referenceName": "ds_source_onehub_get_largest_file",
+									"type": "DatasetReference",
+									"parameters": {
+										"filename": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								},
+								"fieldList": [
+									"size"
+								],
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							}
 						},
 						{
 							"name": "If Condition1",
 							"type": "IfCondition",
 							"dependsOn": [
 								{
-									"activity": "Get Metadata1",
+									"activity": "Get Metadata to get filesize",
 									"dependencyConditions": [
 										"Succeeded"
 									]
