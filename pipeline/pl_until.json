@@ -22,10 +22,6 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"pipeline": {
-									"referenceName": "pl_copy_first_file2",
-									"type": "PipelineReference"
-								},
 								"waitOnCompletion": true
 							}
 						}
