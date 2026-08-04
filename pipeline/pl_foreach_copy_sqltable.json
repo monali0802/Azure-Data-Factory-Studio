@@ -50,13 +50,7 @@
 									}
 								},
 								"enableStaging": false
-							},
-							"outputs": [
-								{
-									"referenceName": "ds_target_copy_foreach_sqltable1",
-									"type": "DatasetReference"
-								}
-							]
+							}
 						}
 					]
 				}
