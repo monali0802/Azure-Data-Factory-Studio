@@ -22,6 +22,10 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pl_copy_first_file",
+									"type": "PipelineReference"
+								},
 								"waitOnCompletion": true
 							}
 						}
@@ -38,5 +42,6 @@
 		},
 		"annotations": [],
 		"lastPublishTime": "2026-07-30T18:31:29Z"
-	}
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
 }
