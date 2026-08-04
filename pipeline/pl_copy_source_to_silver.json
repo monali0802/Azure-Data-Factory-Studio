@@ -169,6 +169,7 @@
 					],
 					"storeSettings": {
 						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
 						"enablePartitionDiscovery": false
 					},
 					"formatSettings": {
@@ -195,7 +196,7 @@
 					},
 					"timeout": "0.00:05:00",
 					"sleep": 10,
-					"childItems": false
+					"childItems": true
 				}
 			},
 			{
