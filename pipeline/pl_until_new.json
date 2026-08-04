@@ -35,7 +35,10 @@
 							"typeProperties": {
 								"source": {
 									"type": "AzureSqlSource",
-									"sqlReaderQuery": "SELECT refreshed AS Status\nFROM masterclass\nWHERE tablename = '@{pipeline().parameters.tablename}'",
+									"sqlReaderQuery": {
+										"value": "SELECT refreshed AS Status\nFROM masterclass\nWHERE tablename = '@{pipeline().parameters.tablename}'",
+										"type": "Expression"
+									},
 									"queryTimeout": "02:00:00",
 									"partitionOption": "None"
 								},
