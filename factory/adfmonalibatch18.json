@@ -1,0 +1,12 @@
+{
+	"name": "adfmonalibatch18",
+	"properties": {
+		"globalParameters": {
+			"container": {
+				"type": "string",
+				"value": "gen2container"
+			}
+		}
+	},
+	"location": "eastus"
+}
