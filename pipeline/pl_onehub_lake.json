@@ -1,5 +1,5 @@
 {
-	"name": "pl_copy_source_to_silver",
+	"name": "pl_onehub_lake",
 	"properties": {
 		"activities": [
 			{
