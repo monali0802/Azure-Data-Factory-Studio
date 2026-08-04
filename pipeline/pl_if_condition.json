@@ -1,0 +1,63 @@
+{
+	"name": "pl_if_condition",
+	"properties": {
+		"activities": [
+			{
+				"name": "If Condition1",
+				"type": "IfCondition",
+				"dependsOn": [],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@equals('hello_world',pipeline().parameters.word)",
+						"type": "Expression"
+					},
+					"ifFalseActivities": [
+						{
+							"name": "Execute Pipeline2",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pl_copy_first_file",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true
+							}
+						}
+					],
+					"ifTrueActivities": [
+						{
+							"name": "Execute Pipeline1",
+							"type": "ExecutePipeline",
+							"dependsOn": [],
+							"policy": {
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"pipeline": {
+									"referenceName": "pl_copy_all_file",
+									"type": "PipelineReference"
+								},
+								"waitOnCompletion": true
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"word": {
+				"type": "string",
+				"defaultValue": "Hello_World"
+			}
+		},
+		"annotations": [],
+		"lastPublishTime": "2026-07-23T18:43:32Z"
+	}
+}

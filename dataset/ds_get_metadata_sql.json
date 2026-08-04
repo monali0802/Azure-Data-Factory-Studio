@@ -1,0 +1,16 @@
+{
+	"name": "ds_get_metadata_sql",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_source_db_monali_batch18",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": "dbo",
+			"table": "employees"
+		}
+	}
+}
