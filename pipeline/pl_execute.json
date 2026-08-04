@@ -11,6 +11,10 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_copy_all_file",
+						"type": "PipelineReference"
+					},
 					"waitOnCompletion": true
 				}
 			}
