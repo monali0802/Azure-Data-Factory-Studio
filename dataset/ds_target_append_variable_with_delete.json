@@ -1,0 +1,32 @@
+{
+	"name": "ds_target_append_variable_with_delete",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls_monali_batch18",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"filename2": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileName": {
+					"value": "@dataset().filename2",
+					"type": "Expression"
+				},
+				"folderPath": "target/append_data",
+				"fileSystem": "gen2container"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
