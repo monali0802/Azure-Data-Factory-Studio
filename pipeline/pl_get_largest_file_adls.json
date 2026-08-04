@@ -15,6 +15,10 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
+					"dataset": {
+						"referenceName": "ds_getlatest_file",
+						"type": "DatasetReference"
+					},
 					"fieldList": [
 						"childItems"
 					],
@@ -314,5 +318,6 @@
 		},
 		"annotations": [],
 		"lastPublishTime": "2026-07-25T10:56:14Z"
-	}
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
 }
