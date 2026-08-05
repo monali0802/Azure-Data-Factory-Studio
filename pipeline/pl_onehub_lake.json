@@ -484,7 +484,17 @@
 							"outputs": [
 								{
 									"referenceName": "ds_target_copy_source_file_to_sql",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"tablename": {
+											"value": "@item().name",
+											"type": "Expression"
+										},
+										"schemaname": {
+											"value": "@variables('schemaname')",
+											"type": "Expression"
+										}
+									}
 								}
 							]
 						}
@@ -507,6 +517,9 @@
 			"FilterFilesForSQL": {
 				"type": "String",
 				"defaultValue": "[\"invoice_line_item.csv\",\"costlist.csv\",\"producing_stat_ratio_detail.csv\"]"
+			},
+			"schemaname": {
+				"type": "String"
 			}
 		},
 		"annotations": []
