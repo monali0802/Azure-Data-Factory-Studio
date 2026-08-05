@@ -1,0 +1,12 @@
+{
+	"name": "ds_target_copy_source_file_to_sql",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_source_db_monali_batch18",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": []
+	}
+}
