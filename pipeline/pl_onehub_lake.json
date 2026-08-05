@@ -519,7 +519,8 @@
 				"defaultValue": "[\"invoice_line_item.csv\",\"costlist.csv\",\"producing_stat_ratio_detail.csv\"]"
 			},
 			"schemaname": {
-				"type": "String"
+				"type": "String",
+				"defaultValue": "dbo"
 			}
 		},
 		"annotations": []
