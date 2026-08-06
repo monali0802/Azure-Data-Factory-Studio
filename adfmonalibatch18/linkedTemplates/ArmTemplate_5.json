@@ -353,7 +353,7 @@
 									},
 									"inputs": [
 										{
-											"referenceName": "ds_incremental_copy",
+											"referenceName": "ds_source_incremental_copy",
 											"type": "DatasetReference",
 											"parameters": {
 												"tablename": {
