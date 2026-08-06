@@ -7,17 +7,45 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "adfmonalibatch18"
 		},
+		"RestService1_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'RestService1'"
+		},
 		"ls_adls_monali_batch18_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'ls_adls_monali_batch18'"
+		},
+		"ls_new_source_monali_batch18_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'ls_new_source_monali_batch18'"
 		},
 		"ls_source_db_monali_batch18_password": {
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'ls_source_db_monali_batch18'"
 		},
+		"RestService1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "http://192.168.1.9:8000/api/sap/mara"
+		},
+		"RestService1_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "test"
+		},
 		"ls_adls_monali_batch18_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://adlsmonaligbatch18.dfs.core.windows.net/"
+		},
+		"ls_new_source_monali_batch18_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "azure-sql-monali-2-batch18.database.windows.net"
+		},
+		"ls_new_source_monali_batch18_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "azure-db-monali-2-batch18"
+		},
+		"ls_new_source_monali_batch18_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "monaligothi1303"
 		},
 		"ls_source_db_monali_batch18_properties_typeProperties_server": {
 			"type": "string",
@@ -61,11 +89,23 @@
 					"ls_adls_monali_batch18_accountKey": {
 						"value": "[parameters('ls_adls_monali_batch18_accountKey')]"
 					},
+					"ls_new_source_monali_batch18_password": {
+						"value": "[parameters('ls_new_source_monali_batch18_password')]"
+					},
 					"ls_source_db_monali_batch18_password": {
 						"value": "[parameters('ls_source_db_monali_batch18_password')]"
 					},
 					"ls_adls_monali_batch18_properties_typeProperties_url": {
 						"value": "[parameters('ls_adls_monali_batch18_properties_typeProperties_url')]"
+					},
+					"ls_new_source_monali_batch18_properties_typeProperties_server": {
+						"value": "[parameters('ls_new_source_monali_batch18_properties_typeProperties_server')]"
+					},
+					"ls_new_source_monali_batch18_properties_typeProperties_database": {
+						"value": "[parameters('ls_new_source_monali_batch18_properties_typeProperties_database')]"
+					},
+					"ls_new_source_monali_batch18_properties_typeProperties_userName": {
+						"value": "[parameters('ls_new_source_monali_batch18_properties_typeProperties_userName')]"
 					},
 					"ls_source_db_monali_batch18_properties_typeProperties_server": {
 						"value": "[parameters('ls_source_db_monali_batch18_properties_typeProperties_server')]"
@@ -153,6 +193,15 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
+					},
+					"RestService1_password": {
+						"value": "[parameters('RestService1_password')]"
+					},
+					"RestService1_properties_typeProperties_url": {
+						"value": "[parameters('RestService1_properties_typeProperties_url')]"
+					},
+					"RestService1_properties_typeProperties_userName": {
+						"value": "[parameters('RestService1_properties_typeProperties_userName')]"
 					}
 				}
 			},
