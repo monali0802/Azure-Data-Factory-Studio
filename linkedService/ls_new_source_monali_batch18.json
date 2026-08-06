@@ -1,0 +1,17 @@
+{
+	"name": "ls_new_source_monali_batch18",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureSqlDatabase",
+		"typeProperties": {
+			"server": "azure-sql-monali-2-batch18.database.windows.net",
+			"database": "azure-db-monali-2-batch18",
+			"encrypt": "mandatory",
+			"trustServerCertificate": false,
+			"authenticationType": "SQL",
+			"userName": "monaligothi1303",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQDY1RDg3Rjg5LTNERUEtNEVBOS1BOUVDLTYxQTNCRjc2NzNDQ180MTViNTVjMC1hM2I3LTQyOGItYWRiZC02MmI4NWMzYzUyMjIiDQp9"
+		}
+	}
+}
