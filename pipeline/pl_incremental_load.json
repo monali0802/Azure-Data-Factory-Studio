@@ -52,7 +52,10 @@
 							"typeProperties": {
 								"source": {
 									"type": "AzureSqlSource",
-									"sqlReaderQuery": "SELECT MAX(last_updated) AS NewWatermarkValue \nFROM @{item().tableName};\n",
+									"sqlReaderQuery": {
+										"value": "SELECT MAX(last_updated) AS NewWatermarkValue \nFROM @{item().tableName};\n",
+										"type": "Expression"
+									},
 									"queryTimeout": "02:00:00",
 									"partitionOption": "None"
 								},
@@ -131,7 +134,7 @@
 							},
 							"inputs": [
 								{
-									"referenceName": "ds_incremental_copy",
+									"referenceName": "ds_source_incremental_copy",
 									"type": "DatasetReference",
 									"parameters": {
 										"tablename": {
