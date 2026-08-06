@@ -5,11 +5,11 @@
 		"annotations": [],
 		"type": "RestService",
 		"typeProperties": {
-			"url": "https://192.168.1.9:8000/api/sap/mara",
+			"url": "http://192.168.1.9:8000/api/sap/mara",
 			"enableServerCertificateValidation": true,
 			"authenticationType": "Basic",
 			"userName": "test",
-			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI3MzI1ZDQxNC02ODJlLTRmMmMtYmI2YS00NDlkODc5MzlmNTMiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI4Yzg4YjgzMi00ZmNhLTQzM2MtYjA3NS03YmM4ZDQ5ODM1YTQiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
 		},
 		"connectVia": {
 			"referenceName": "saptables",
