@@ -1,5 +1,5 @@
 {
-	"name": "pl_onehub_sql",
+	"name": "pl_onehub_sql_to_source_sql",
 	"properties": {
 		"activities": [
 			{
@@ -112,6 +112,70 @@
 									}
 								}
 							]
+						},
+						{
+							"name": "Set variable for TableName",
+							"type": "SetVariable",
+							"dependsOn": [
+								{
+									"activity": "Copy data from adls to SQL",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"variableName": "tablename",
+								"value": "@replace(item().name,'.csv','')"
+							}
+						},
+						{
+							"name": "Stored procedure to update the watermark table",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [
+								{
+									"activity": "Set variable for TableName",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[onehub_write_watermark]",
+								"storedProcedureParameters": {
+									"last_updated": {
+										"value": {
+											"value": "@utcNow()",
+											"type": "Expression"
+										},
+										"type": "Datetime"
+									},
+									"tableName": {
+										"value": {
+											"value": "@variables('tablename')",
+											"type": "Expression"
+										},
+										"type": "String"
+									}
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "ls_source_db_monali_batch18",
+								"type": "LinkedServiceReference"
+							}
 						}
 					]
 				}
@@ -159,6 +223,9 @@
 					"costlist.csv",
 					"producing_stat_ratio_detail.csv"
 				]
+			},
+			"tablename": {
+				"type": "String"
 			}
 		},
 		"annotations": []
