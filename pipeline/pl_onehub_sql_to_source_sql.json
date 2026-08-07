@@ -131,7 +131,10 @@
 							"userProperties": [],
 							"typeProperties": {
 								"variableName": "tablename",
-								"value": "@replace(item().name,'.csv','')"
+								"value": {
+									"value": "@replace(item().name,'.csv','')",
+									"type": "Expression"
+								}
 							}
 						},
 						{
