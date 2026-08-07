@@ -104,7 +104,7 @@
 								"source": {
 									"type": "AzureSqlSource",
 									"sqlReaderQuery": {
-										"value": "select * \nFROM @item().tableName \nWHERE item().WaterMark_Column > formatDateTime(activity('Oldwatermark').output.firstRow.Watermarkvalue, 'yyyy-MM-ddTHH:mm:ss') \nAND item().WaterMark_Column <= formatDateTime(activity('Newwatermark').output.firstRow.NewWatermarkValue, 'yyyy-MM-ddTHH:mm:ss')\n",
+										"value": "SELECT *\nFROM @{item().TableName}\nWHERE @{item().WaterMark_Column} > '@{formatDateTime(activity('Lookup1').output.firstRow.Watermarkvalue, 'yyyy-MM-ddTHH:mm:ss')}'\nAND @{item().WaterMark_Column} <= '@{formatDateTime(activity('Lookup2').output.firstRow.NewWatermarkValue, 'yyyy-MM-ddTHH:mm:ss')}'",
 										"type": "Expression"
 									},
 									"queryTimeout": "02:00:00",
