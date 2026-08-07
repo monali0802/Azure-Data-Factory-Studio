@@ -185,6 +185,7 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
+								"storedProcedureName": "[dbo].[usp_write_watermark]",
 								"storedProcedureParameters": {
 									"last_updated": {
 										"value": {
