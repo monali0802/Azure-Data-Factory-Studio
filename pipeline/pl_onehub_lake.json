@@ -423,7 +423,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"pipeline": {
-						"referenceName": "pl_onehub_sql",
+						"referenceName": "pl_onehub_sql_to_source_sql",
 						"type": "PipelineReference"
 					},
 					"waitOnCompletion": true
