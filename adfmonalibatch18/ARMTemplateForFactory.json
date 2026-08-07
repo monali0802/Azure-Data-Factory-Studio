@@ -3755,7 +3755,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"pipeline": {
-								"referenceName": "pl_onehub_sql",
+								"referenceName": "pl_onehub_sql_to_source_sql",
 								"type": "PipelineReference"
 							},
 							"waitOnCompletion": true,
@@ -3791,13 +3791,13 @@
 				"[concat(variables('factoryId'), '/datasets/ds_source_onehub_lake_copy_gold')]",
 				"[concat(variables('factoryId'), '/datasets/ds_source_copy_largest_file_to_gold')]",
 				"[concat(variables('factoryId'), '/datasets/ds_target_copy_largest_file_to_gold')]",
-				"[concat(variables('factoryId'), '/pipelines/pl_onehub_sql')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_onehub_sql_to_source_sql')]",
 				"[concat(variables('factoryId'), '/datasets/ds_source_onehub_lake_copy_filter_to_silver')]",
 				"[concat(variables('factoryId'), '/datasets/ds_source_onehub_get_largest_file')]"
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pl_onehub_sql')]",
+			"name": "[concat(parameters('factoryName'), '/pl_onehub_sql_to_source_sql')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -3912,6 +3912,73 @@
 											}
 										}
 									]
+								},
+								{
+									"name": "Set variable for TableName",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "Copy data from adls to SQL",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "tablename",
+										"value": {
+											"value": "@replace(item().name,'.csv','')",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Stored procedure to update the watermark table",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [
+										{
+											"activity": "Set variable for TableName",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[onehub_write_watermark]",
+										"storedProcedureParameters": {
+											"last_updated": {
+												"value": {
+													"value": "@utcNow()",
+													"type": "Expression"
+												},
+												"type": "Datetime"
+											},
+											"tableName": {
+												"value": {
+													"value": "@variables('tablename')",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "ls_source_db_monali_batch18",
+										"type": "LinkedServiceReference"
+									}
 								}
 							]
 						}
@@ -3963,6 +4030,9 @@
 							"costlist.csv",
 							"producing_stat_ratio_detail.csv"
 						]
+					},
+					"tablename": {
+						"type": "String"
 					}
 				},
 				"annotations": []
@@ -3970,7 +4040,8 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ds_source_onehub_lake_copy_to_silver')]",
 				"[concat(variables('factoryId'), '/datasets/ds_source_copy_source_file_to_sql')]",
-				"[concat(variables('factoryId'), '/datasets/ds_target_copy_source_file_to_sql')]"
+				"[concat(variables('factoryId'), '/datasets/ds_target_copy_source_file_to_sql')]",
+				"[concat(variables('factoryId'), '/linkedServices/ls_source_db_monali_batch18')]"
 			]
 		},
 		{
@@ -5084,6 +5155,41 @@
 				"typeProperties": {
 					"schema": "dbo",
 					"table": "customers"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_source_db_monali_batch18')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_onehub_lookup_sql')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_source_db_monali_batch18",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"tablename": {
+						"type": "string"
+					},
+					"schemaname": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schemaname",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().tablename",
+						"type": "Expression"
+					}
 				}
 			},
 			"dependsOn": [

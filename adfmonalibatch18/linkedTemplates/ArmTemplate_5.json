@@ -13,6 +13,178 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('factoryName'), '/pl_get_largest_table_sql')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Lookup1",
+						"type": "Lookup",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"sqlReaderQuery": "SELECT TOP (1)\n    s.name AS SchemaName,\n    t.name AS TableName,\n    SUM(p.rows) AS TotalRows\nFROM sys.tables t\nJOIN sys.schemas s\n    ON t.schema_id = s.schema_id\nJOIN sys.partitions p\n    ON t.object_id = p.object_id\nWHERE p.index_id IN (0,1)\nGROUP BY\n    s.name,\n    t.name\nORDER BY\n    TotalRows DESC;",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"dataset": {
+								"referenceName": "ds_get_largest_table",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"firstRowOnly": false
+						}
+					},
+					{
+						"name": "Set variable1_copy1",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Lookup1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "LargestTableName",
+							"value": {
+								"value": "@activity('Lookup1').output.value[0].TableName",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [
+							{
+								"activity": "Set variable1_copy1_copy1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "AzureSqlSource",
+								"queryTimeout": "02:00:00",
+								"partitionOption": "None"
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_source_copy_largest_sql_table",
+								"type": "DatasetReference",
+								"parameters": {
+									"schemaname": {
+										"value": "@variables('LargestSchemaName')",
+										"type": "Expression"
+									},
+									"tablename": {
+										"value": "@variables('LargestTableName')",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_target_copy_largest_table",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					},
+					{
+						"name": "Set variable1_copy1_copy1",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "Set variable1_copy1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "LargestSchemaName",
+							"value": {
+								"value": "@activity('Lookup1').output.value[0].SchemaName",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"LargestTableName": {
+						"type": "String"
+					},
+					"LargestColumnCount": {
+						"type": "Integer",
+						"defaultValue": 0
+					},
+					"LargestSchemaName": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"lastPublishTime": "2026-07-29T19:07:37Z"
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pl_get_latest_file')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -1019,7 +1191,7 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pl_onehub_sql')]",
+			"name": "[concat(parameters('factoryName'), '/pl_onehub_sql_to_source_sql')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
@@ -1134,6 +1306,73 @@
 											}
 										}
 									]
+								},
+								{
+									"name": "Set variable for TableName",
+									"type": "SetVariable",
+									"dependsOn": [
+										{
+											"activity": "Copy data from adls to SQL",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "tablename",
+										"value": {
+											"value": "@replace(item().name,'.csv','')",
+											"type": "Expression"
+										}
+									}
+								},
+								{
+									"name": "Stored procedure to update the watermark table",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [
+										{
+											"activity": "Set variable for TableName",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[onehub_write_watermark]",
+										"storedProcedureParameters": {
+											"last_updated": {
+												"value": {
+													"value": "@utcNow()",
+													"type": "Expression"
+												},
+												"type": "Datetime"
+											},
+											"tableName": {
+												"value": {
+													"value": "@variables('tablename')",
+													"type": "Expression"
+												},
+												"type": "String"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "ls_source_db_monali_batch18",
+										"type": "LinkedServiceReference"
+									}
 								}
 							]
 						}
@@ -1185,6 +1424,9 @@
 							"costlist.csv",
 							"producing_stat_ratio_detail.csv"
 						]
+					},
+					"tablename": {
+						"type": "String"
 					}
 				},
 				"annotations": []
@@ -2027,7 +2269,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"pipeline": {
-								"referenceName": "pl_onehub_sql",
+								"referenceName": "pl_onehub_sql_to_source_sql",
 								"type": "PipelineReference"
 							},
 							"waitOnCompletion": true,
@@ -2058,7 +2300,7 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/pl_onehub_sql')]"
+				"[concat(variables('factoryId'), '/pipelines/pl_onehub_sql_to_source_sql')]"
 			]
 		},
 		{
@@ -2131,59 +2373,6 @@
 				},
 				"annotations": [],
 				"lastPublishTime": "2026-07-29T18:29:26Z"
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pl_until')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Until1",
-						"type": "Until",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"expression": {
-								"value": "@equals(variables('flag'), false)",
-								"type": "Expression"
-							},
-							"activities": [
-								{
-									"name": "Execute Pipeline1",
-									"type": "ExecutePipeline",
-									"dependsOn": [],
-									"policy": {
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"pipeline": {
-											"referenceName": "pl_copy_first_file",
-											"type": "PipelineReference"
-										},
-										"waitOnCompletion": true,
-										"parameters": {}
-									}
-								}
-							],
-							"timeout": "0.12:00:00"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"variables": {
-					"flag": {
-						"type": "Boolean",
-						"defaultValue": false
-					}
-				},
-				"annotations": [],
-				"lastPublishTime": "2026-07-30T18:31:29Z"
 			},
 			"dependsOn": []
 		}
