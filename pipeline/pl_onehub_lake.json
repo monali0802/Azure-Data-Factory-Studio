@@ -432,8 +432,12 @@
 		],
 		"variables": {
 			"FilterFiles": {
-				"type": "String",
-				"defaultValue": "[\"MARA.csv\",\"VBRK.csv\",\"VBAP.csv\"]"
+				"type": "Array",
+				"defaultValue": [
+					"MARA.csv",
+					"VBRK.csv",
+					"VBAP.csv"
+				]
 			},
 			"LargestFileName": {
 				"type": "String"
@@ -441,14 +445,6 @@
 			"LargestFileSize": {
 				"type": "Integer",
 				"defaultValue": 0
-			},
-			"FilterFilesForSQL": {
-				"type": "String",
-				"defaultValue": "[\"invoice_line_item.csv\",\"costlist.csv\",\"producing_stat_ratio_detail.csv\"]"
-			},
-			"schemaname": {
-				"type": "String",
-				"defaultValue": "dbo"
 			}
 		},
 		"annotations": []
