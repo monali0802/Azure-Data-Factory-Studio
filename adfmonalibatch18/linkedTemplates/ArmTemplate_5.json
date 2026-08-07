@@ -1324,7 +1324,14 @@
 											{
 												"name": "Set variable for largest file name",
 												"type": "SetVariable",
-												"dependsOn": [],
+												"dependsOn": [
+													{
+														"activity": "Set variable for largest file size",
+														"dependencyConditions": [
+															"Succeeded"
+														]
+													}
+												],
 												"policy": {
 													"secureOutput": false,
 													"secureInput": false
@@ -1334,6 +1341,23 @@
 													"variableName": "LargestFileName",
 													"value": {
 														"value": "@activity('Get Metadata to get filesize').output.itemName",
+														"type": "Expression"
+													}
+												}
+											},
+											{
+												"name": "Set variable for largest file size",
+												"type": "SetVariable",
+												"dependsOn": [],
+												"policy": {
+													"secureOutput": false,
+													"secureInput": false
+												},
+												"userProperties": [],
+												"typeProperties": {
+													"variableName": "LargestFileSize",
+													"value": {
+														"value": "@activity('Get Metadata to get filesize').output.size",
 														"type": "Expression"
 													}
 												}
