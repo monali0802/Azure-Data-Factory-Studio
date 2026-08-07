@@ -3746,6 +3746,63 @@
 						]
 					},
 					{
+						"name": "Execute Pipeline1",
+						"type": "ExecutePipeline",
+						"dependsOn": [],
+						"policy": {
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"pipeline": {
+								"referenceName": "pl_onehub_sql",
+								"type": "PipelineReference"
+							},
+							"waitOnCompletion": true,
+							"parameters": {}
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"variables": {
+					"FilterFiles": {
+						"type": "Array",
+						"defaultValue": [
+							"MARA.csv",
+							"VBRK.csv",
+							"VBAP.csv"
+						]
+					},
+					"LargestFileName": {
+						"type": "String"
+					},
+					"LargestFileSize": {
+						"type": "Integer",
+						"defaultValue": 0
+					}
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_source_onehub_lake_copy_to_silver')]",
+				"[concat(variables('factoryId'), '/datasets/ds_target_onehub_lake_copy_to_silver')]",
+				"[concat(variables('factoryId'), '/datasets/ds_source_onehub_lake_copy_gold')]",
+				"[concat(variables('factoryId'), '/datasets/ds_source_copy_largest_file_to_gold')]",
+				"[concat(variables('factoryId'), '/datasets/ds_target_copy_largest_file_to_gold')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_onehub_sql')]",
+				"[concat(variables('factoryId'), '/datasets/ds_source_onehub_lake_copy_filter_to_silver')]",
+				"[concat(variables('factoryId'), '/datasets/ds_source_onehub_get_largest_file')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_onehub_sql')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
 						"name": "Filter files for SQL",
 						"type": "Filter",
 						"dependsOn": [
@@ -3782,7 +3839,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"items": {
-								"value": "@activity('Filter files for SQL').output",
+								"value": "@activity('Filter files for SQL').output.Value",
 								"type": "Expression"
 							},
 							"activities": [
@@ -3813,7 +3870,9 @@
 										"sink": {
 											"type": "AzureSqlSink",
 											"writeBehavior": "insert",
-											"sqlWriterUseTableLock": false
+											"sqlWriterUseTableLock": false,
+											"tableOption": "autoCreate",
+											"disableMetricsCollection": false
 										},
 										"enableStaging": false,
 										"translator": {
@@ -3843,7 +3902,7 @@
 											"type": "DatasetReference",
 											"parameters": {
 												"tablename": {
-													"value": "@item().name",
+													"value": "@replace(item().name,'.csv','')",
 													"type": "Expression"
 												},
 												"schemaname": {
@@ -3856,42 +3915,60 @@
 								}
 							]
 						}
+					},
+					{
+						"name": "Get Metadata to get files",
+						"type": "GetMetadata",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"dataset": {
+								"referenceName": "ds_source_onehub_lake_copy_to_silver",
+								"type": "DatasetReference",
+								"parameters": {}
+							},
+							"fieldList": [
+								"childItems"
+							],
+							"storeSettings": {
+								"type": "AzureBlobFSReadSettings",
+								"recursive": true,
+								"enablePartitionDiscovery": false
+							},
+							"formatSettings": {
+								"type": "DelimitedTextReadSettings"
+							}
+						}
 					}
 				],
 				"policy": {
 					"elapsedTimeMetric": {}
 				},
 				"variables": {
-					"FilterFiles": {
-						"type": "String",
-						"defaultValue": "[[\"MARA.csv\",\"VBRK.csv\",\"VBAP.csv\"]"
-					},
-					"LargestFileName": {
-						"type": "String"
-					},
-					"LargestFileSize": {
-						"type": "Integer",
-						"defaultValue": 0
-					},
-					"FilterFilesForSQL": {
-						"type": "String",
-						"defaultValue": "[[\"invoice_line_item.csv\",\"costlist.csv\",\"producing_stat_ratio_detail.csv\"]"
-					},
 					"schemaname": {
 						"type": "String",
 						"defaultValue": "dbo"
+					},
+					"FilterFilesForSQL": {
+						"type": "Array",
+						"defaultValue": [
+							"invoice_line_item.csv",
+							"costlist.csv",
+							"producing_stat_ratio_detail.csv"
+						]
 					}
 				},
 				"annotations": []
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ds_source_onehub_lake_copy_to_silver')]",
-				"[concat(variables('factoryId'), '/datasets/ds_target_onehub_lake_copy_to_silver')]",
-				"[concat(variables('factoryId'), '/datasets/ds_source_onehub_lake_copy_gold')]",
-				"[concat(variables('factoryId'), '/datasets/ds_source_copy_largest_file_to_gold')]",
-				"[concat(variables('factoryId'), '/datasets/ds_target_copy_largest_file_to_gold')]",
-				"[concat(variables('factoryId'), '/datasets/ds_source_onehub_lake_copy_filter_to_silver')]",
-				"[concat(variables('factoryId'), '/datasets/ds_source_onehub_get_largest_file')]",
 				"[concat(variables('factoryId'), '/datasets/ds_source_copy_source_file_to_sql')]",
 				"[concat(variables('factoryId'), '/datasets/ds_target_copy_source_file_to_sql')]"
 			]
