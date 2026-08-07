@@ -414,115 +414,19 @@
 				]
 			},
 			{
-				"name": "Filter files for SQL",
-				"type": "Filter",
-				"dependsOn": [
-					{
-						"activity": "Get Metadata to get files",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
+				"name": "Execute Pipeline1",
+				"type": "ExecutePipeline",
+				"dependsOn": [],
+				"policy": {
+					"secureInput": false
+				},
 				"userProperties": [],
 				"typeProperties": {
-					"items": {
-						"value": "@activity('Get Metadata to get files').output.childItems",
-						"type": "Expression"
+					"pipeline": {
+						"referenceName": "pl_onehub_sql",
+						"type": "PipelineReference"
 					},
-					"condition": {
-						"value": "@contains(variables('FilterFilesForSQL'), item().name)",
-						"type": "Expression"
-					}
-				}
-			},
-			{
-				"name": "ForEach to copy filtered file into sql",
-				"type": "ForEach",
-				"dependsOn": [
-					{
-						"activity": "Filter files for SQL",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					}
-				],
-				"userProperties": [],
-				"typeProperties": {
-					"items": {
-						"value": "@activity('Filter files for SQL').output",
-						"type": "Expression"
-					},
-					"activities": [
-						{
-							"name": "Copy data from adls to SQL",
-							"type": "Copy",
-							"dependsOn": [],
-							"policy": {
-								"timeout": "0.12:00:00",
-								"retry": 0,
-								"retryIntervalInSeconds": 30,
-								"secureOutput": false,
-								"secureInput": false
-							},
-							"userProperties": [],
-							"typeProperties": {
-								"source": {
-									"type": "DelimitedTextSource",
-									"storeSettings": {
-										"type": "AzureBlobFSReadSettings",
-										"recursive": true,
-										"enablePartitionDiscovery": false
-									},
-									"formatSettings": {
-										"type": "DelimitedTextReadSettings"
-									}
-								},
-								"sink": {
-									"type": "AzureSqlSink",
-									"writeBehavior": "insert",
-									"sqlWriterUseTableLock": false
-								},
-								"enableStaging": false,
-								"translator": {
-									"type": "TabularTranslator",
-									"typeConversion": true,
-									"typeConversionSettings": {
-										"allowDataTruncation": true,
-										"treatBooleanAsNumber": false
-									}
-								}
-							},
-							"inputs": [
-								{
-									"referenceName": "ds_source_copy_source_file_to_sql",
-									"type": "DatasetReference",
-									"parameters": {
-										"filename": {
-											"value": "@item().name",
-											"type": "Expression"
-										}
-									}
-								}
-							],
-							"outputs": [
-								{
-									"referenceName": "ds_target_copy_source_file_to_sql",
-									"type": "DatasetReference",
-									"parameters": {
-										"tablename": {
-											"value": "@item().name",
-											"type": "Expression"
-										},
-										"schemaname": {
-											"value": "@variables('schemaname')",
-											"type": "Expression"
-										}
-									}
-								}
-							]
-						}
-					]
+					"waitOnCompletion": true
 				}
 			}
 		],
