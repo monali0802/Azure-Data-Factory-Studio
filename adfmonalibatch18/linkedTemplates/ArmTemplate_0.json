@@ -7,6 +7,10 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "adfmonalibatch18"
 		},
+		"HttpServer1_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'HttpServer1'"
+		},
 		"ls_adls_monali_batch18_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'ls_adls_monali_batch18'"
@@ -18,6 +22,14 @@
 		"ls_source_db_monali_batch18_password": {
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'ls_source_db_monali_batch18'"
+		},
+		"HttpServer1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "http://192.168.1.9:8000/api/sap/mara"
+		},
+		"HttpServer1_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "test"
 		},
 		"ls_adls_monali_batch18_properties_typeProperties_url": {
 			"type": "string",
@@ -140,6 +152,26 @@
 				},
 				"annotations": [],
 				"lastPublishTime": "2026-07-16T18:18:58Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/HttpServer1')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "HttpServer",
+				"typeProperties": {
+					"url": "[parameters('HttpServer1_properties_typeProperties_url')]",
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Basic",
+					"userName": "[parameters('HttpServer1_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('HttpServer1_password')]"
+					}
+				}
 			},
 			"dependsOn": []
 		},
@@ -653,24 +685,6 @@
 					"schema": "dbo",
 					"table": "iplteams"
 				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_source_db_monali_batch18')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_lookup_sql_tables')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_source_db_monali_batch18",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [],
-				"typeProperties": {}
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ls_source_db_monali_batch18')]"

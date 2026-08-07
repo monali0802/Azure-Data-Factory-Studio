@@ -7,6 +7,10 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "adfmonalibatch18"
 		},
+		"HttpServer1_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'HttpServer1'"
+		},
 		"RestService1_password": {
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'RestService1'"
@@ -22,6 +26,14 @@
 		"ls_source_db_monali_batch18_password": {
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'ls_source_db_monali_batch18'"
+		},
+		"HttpServer1_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "http://192.168.1.9:8000/api/sap/mara"
+		},
+		"HttpServer1_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "test"
 		},
 		"RestService1_properties_typeProperties_url": {
 			"type": "string",
@@ -86,6 +98,9 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
+					"HttpServer1_password": {
+						"value": "[parameters('HttpServer1_password')]"
+					},
 					"ls_adls_monali_batch18_accountKey": {
 						"value": "[parameters('ls_adls_monali_batch18_accountKey')]"
 					},
@@ -94,6 +109,12 @@
 					},
 					"ls_source_db_monali_batch18_password": {
 						"value": "[parameters('ls_source_db_monali_batch18_password')]"
+					},
+					"HttpServer1_properties_typeProperties_url": {
+						"value": "[parameters('HttpServer1_properties_typeProperties_url')]"
+					},
+					"HttpServer1_properties_typeProperties_userName": {
+						"value": "[parameters('HttpServer1_properties_typeProperties_userName')]"
 					},
 					"ls_adls_monali_batch18_properties_typeProperties_url": {
 						"value": "[parameters('ls_adls_monali_batch18_properties_typeProperties_url')]"

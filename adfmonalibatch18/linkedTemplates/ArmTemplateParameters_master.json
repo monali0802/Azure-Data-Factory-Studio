@@ -5,6 +5,9 @@
 		"factoryName": {
 			"value": "adfmonalibatch18"
 		},
+		"HttpServer1_password": {
+			"value": ""
+		},
 		"RestService1_password": {
 			"value": ""
 		},
@@ -16,6 +19,12 @@
 		},
 		"ls_source_db_monali_batch18_password": {
 			"value": ""
+		},
+		"HttpServer1_properties_typeProperties_url": {
+			"value": "http://192.168.1.9:8000/api/sap/mara"
+		},
+		"HttpServer1_properties_typeProperties_userName": {
+			"value": "test"
 		},
 		"RestService1_properties_typeProperties_url": {
 			"value": "http://192.168.1.9:8000/api/sap/mara"
