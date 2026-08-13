@@ -84,6 +84,7 @@
 					],
 					"storeSettings": {
 						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
 						"enablePartitionDiscovery": false
 					},
 					"formatSettings": {
@@ -134,10 +135,12 @@
 									}
 								},
 								"fieldList": [
-									"size"
+									"size",
+									"itemName"
 								],
 								"storeSettings": {
 									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
 									"enablePartitionDiscovery": false
 								},
 								"formatSettings": {
@@ -174,7 +177,10 @@
 										"userProperties": [],
 										"typeProperties": {
 											"variableName": "LargestFileSize",
-											"value": ""
+											"value": {
+												"value": "@activity('Get Metadata1 to get size of file').output.size",
+												"type": "Expression"
+											}
 										}
 									},
 									{
@@ -195,7 +201,10 @@
 										"userProperties": [],
 										"typeProperties": {
 											"variableName": "LargestFileName",
-											"value": ""
+											"value": {
+												"value": "@activity('Get Metadata1 to get size of file').output.itemName",
+												"type": "Expression"
+											}
 										}
 									}
 								]
