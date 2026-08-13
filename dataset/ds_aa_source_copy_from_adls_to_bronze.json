@@ -1,0 +1,23 @@
+{
+	"name": "ds_aa_source_copy_from_adls_to_bronze",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_adls_monali_batch18",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": "source",
+				"fileSystem": "gen2container"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
