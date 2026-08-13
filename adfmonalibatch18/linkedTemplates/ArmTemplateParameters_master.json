@@ -11,6 +11,9 @@
 		"RestService1_password": {
 			"value": ""
 		},
+		"ls_aa_one_hub_project_adls_accountKey": {
+			"value": ""
+		},
 		"ls_adls_monali_batch18_accountKey": {
 			"value": ""
 		},
@@ -31,6 +34,9 @@
 		},
 		"RestService1_properties_typeProperties_userName": {
 			"value": "test"
+		},
+		"ls_aa_one_hub_project_adls_properties_typeProperties_url": {
+			"value": "https://adlsmonalibatch18onehub.dfs.core.windows.net/"
 		},
 		"ls_adls_monali_batch18_properties_typeProperties_url": {
 			"value": "https://adlsmonaligbatch18.dfs.core.windows.net/"

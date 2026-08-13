@@ -15,6 +15,10 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'RestService1'"
 		},
+		"ls_aa_one_hub_project_adls_accountKey": {
+			"type": "secureString",
+			"metadata": "Secure string for 'accountKey' of 'ls_aa_one_hub_project_adls'"
+		},
 		"ls_adls_monali_batch18_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'ls_adls_monali_batch18'"
@@ -42,6 +46,10 @@
 		"RestService1_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "test"
+		},
+		"ls_aa_one_hub_project_adls_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://adlsmonalibatch18onehub.dfs.core.windows.net/"
 		},
 		"ls_adls_monali_batch18_properties_typeProperties_url": {
 			"type": "string",
@@ -101,6 +109,9 @@
 					"HttpServer1_password": {
 						"value": "[parameters('HttpServer1_password')]"
 					},
+					"ls_aa_one_hub_project_adls_accountKey": {
+						"value": "[parameters('ls_aa_one_hub_project_adls_accountKey')]"
+					},
 					"ls_adls_monali_batch18_accountKey": {
 						"value": "[parameters('ls_adls_monali_batch18_accountKey')]"
 					},
@@ -115,6 +126,9 @@
 					},
 					"HttpServer1_properties_typeProperties_userName": {
 						"value": "[parameters('HttpServer1_properties_typeProperties_userName')]"
+					},
+					"ls_aa_one_hub_project_adls_properties_typeProperties_url": {
+						"value": "[parameters('ls_aa_one_hub_project_adls_properties_typeProperties_url')]"
 					},
 					"ls_adls_monali_batch18_properties_typeProperties_url": {
 						"value": "[parameters('ls_adls_monali_batch18_properties_typeProperties_url')]"
