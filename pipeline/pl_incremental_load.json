@@ -229,6 +229,9 @@
 				]
 			}
 		},
+		"folder": {
+			"name": "Data Type"
+		},
 		"annotations": []
 	}
 }

@@ -294,6 +294,9 @@
 				"defaultValue": 0
 			}
 		},
+		"folder": {
+			"name": "onehub lake"
+		},
 		"annotations": []
 	}
 }
