@@ -126,7 +126,7 @@
 							],
 							"outputs": [
 								{
-									"referenceName": "ds_aa__target_copy_data_source_to_target",
+									"referenceName": "ds_aa_target_copy_data_source_to_target",
 									"type": "DatasetReference"
 								}
 							]

@@ -1,5 +1,5 @@
 {
-	"name": "ds_aa__target_copy_data_source_to_target",
+	"name": "ds_aa_target_copy_data_source_to_target",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "ls_aa_one_hub_project_target",
