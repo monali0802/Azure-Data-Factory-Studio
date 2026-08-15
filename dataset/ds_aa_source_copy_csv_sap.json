@@ -1,0 +1,22 @@
+{
+	"name": "ds_aa_source_copy_csv_sap",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_aa_one_hub_project_adls",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"fileSystem": "source"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
