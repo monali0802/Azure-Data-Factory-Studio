@@ -1,0 +1,12 @@
+{
+	"name": "ds_aa_lookup_to_getlatest_data",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_aa_one_hub_project_source",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": []
+	}
+}
