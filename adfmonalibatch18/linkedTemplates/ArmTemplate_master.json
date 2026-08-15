@@ -19,6 +19,14 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'ls_aa_one_hub_project_adls'"
 		},
+		"ls_aa_one_hub_project_source_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'ls_aa_one_hub_project_source'"
+		},
+		"ls_aa_one_hub_project_target_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'ls_aa_one_hub_project_target'"
+		},
 		"ls_adls_monali_batch18_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'ls_adls_monali_batch18'"
@@ -50,6 +58,30 @@
 		"ls_aa_one_hub_project_adls_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://adlsmonalibatch18onehub.dfs.core.windows.net/"
+		},
+		"ls_aa_one_hub_project_source_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "azure-sql-monali-batch18.database.windows.net"
+		},
+		"ls_aa_one_hub_project_source_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "azure-db-monali-batch18"
+		},
+		"ls_aa_one_hub_project_source_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "monaligothi1303"
+		},
+		"ls_aa_one_hub_project_target_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "azure-sql-monali-2-batch18.database.windows.net"
+		},
+		"ls_aa_one_hub_project_target_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "azure-db-monali-2-batch18"
+		},
+		"ls_aa_one_hub_project_target_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "monaligothi1303"
 		},
 		"ls_adls_monali_batch18_properties_typeProperties_url": {
 			"type": "string",
@@ -112,6 +144,12 @@
 					"ls_aa_one_hub_project_adls_accountKey": {
 						"value": "[parameters('ls_aa_one_hub_project_adls_accountKey')]"
 					},
+					"ls_aa_one_hub_project_source_password": {
+						"value": "[parameters('ls_aa_one_hub_project_source_password')]"
+					},
+					"ls_aa_one_hub_project_target_password": {
+						"value": "[parameters('ls_aa_one_hub_project_target_password')]"
+					},
 					"ls_adls_monali_batch18_accountKey": {
 						"value": "[parameters('ls_adls_monali_batch18_accountKey')]"
 					},
@@ -129,6 +167,24 @@
 					},
 					"ls_aa_one_hub_project_adls_properties_typeProperties_url": {
 						"value": "[parameters('ls_aa_one_hub_project_adls_properties_typeProperties_url')]"
+					},
+					"ls_aa_one_hub_project_source_properties_typeProperties_server": {
+						"value": "[parameters('ls_aa_one_hub_project_source_properties_typeProperties_server')]"
+					},
+					"ls_aa_one_hub_project_source_properties_typeProperties_database": {
+						"value": "[parameters('ls_aa_one_hub_project_source_properties_typeProperties_database')]"
+					},
+					"ls_aa_one_hub_project_source_properties_typeProperties_userName": {
+						"value": "[parameters('ls_aa_one_hub_project_source_properties_typeProperties_userName')]"
+					},
+					"ls_aa_one_hub_project_target_properties_typeProperties_server": {
+						"value": "[parameters('ls_aa_one_hub_project_target_properties_typeProperties_server')]"
+					},
+					"ls_aa_one_hub_project_target_properties_typeProperties_database": {
+						"value": "[parameters('ls_aa_one_hub_project_target_properties_typeProperties_database')]"
+					},
+					"ls_aa_one_hub_project_target_properties_typeProperties_userName": {
+						"value": "[parameters('ls_aa_one_hub_project_target_properties_typeProperties_userName')]"
 					},
 					"ls_adls_monali_batch18_properties_typeProperties_url": {
 						"value": "[parameters('ls_adls_monali_batch18_properties_typeProperties_url')]"

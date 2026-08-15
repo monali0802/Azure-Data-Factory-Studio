@@ -14,6 +14,12 @@
 		"ls_aa_one_hub_project_adls_accountKey": {
 			"value": ""
 		},
+		"ls_aa_one_hub_project_source_password": {
+			"value": ""
+		},
+		"ls_aa_one_hub_project_target_password": {
+			"value": ""
+		},
 		"ls_adls_monali_batch18_accountKey": {
 			"value": ""
 		},
@@ -37,6 +43,24 @@
 		},
 		"ls_aa_one_hub_project_adls_properties_typeProperties_url": {
 			"value": "https://adlsmonalibatch18onehub.dfs.core.windows.net/"
+		},
+		"ls_aa_one_hub_project_source_properties_typeProperties_server": {
+			"value": "azure-sql-monali-batch18.database.windows.net"
+		},
+		"ls_aa_one_hub_project_source_properties_typeProperties_database": {
+			"value": "azure-db-monali-batch18"
+		},
+		"ls_aa_one_hub_project_source_properties_typeProperties_userName": {
+			"value": "monaligothi1303"
+		},
+		"ls_aa_one_hub_project_target_properties_typeProperties_server": {
+			"value": "azure-sql-monali-2-batch18.database.windows.net"
+		},
+		"ls_aa_one_hub_project_target_properties_typeProperties_database": {
+			"value": "azure-db-monali-2-batch18"
+		},
+		"ls_aa_one_hub_project_target_properties_typeProperties_userName": {
+			"value": "monaligothi1303"
 		},
 		"ls_adls_monali_batch18_properties_typeProperties_url": {
 			"value": "https://adlsmonaligbatch18.dfs.core.windows.net/"

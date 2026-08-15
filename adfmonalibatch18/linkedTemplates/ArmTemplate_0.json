@@ -15,6 +15,14 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'ls_aa_one_hub_project_adls'"
 		},
+		"ls_aa_one_hub_project_source_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'ls_aa_one_hub_project_source'"
+		},
+		"ls_aa_one_hub_project_target_password": {
+			"type": "secureString",
+			"metadata": "Secure string for 'password' of 'ls_aa_one_hub_project_target'"
+		},
 		"ls_adls_monali_batch18_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'ls_adls_monali_batch18'"
@@ -38,6 +46,30 @@
 		"ls_aa_one_hub_project_adls_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://adlsmonalibatch18onehub.dfs.core.windows.net/"
+		},
+		"ls_aa_one_hub_project_source_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "azure-sql-monali-batch18.database.windows.net"
+		},
+		"ls_aa_one_hub_project_source_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "azure-db-monali-batch18"
+		},
+		"ls_aa_one_hub_project_source_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "monaligothi1303"
+		},
+		"ls_aa_one_hub_project_target_properties_typeProperties_server": {
+			"type": "string",
+			"defaultValue": "azure-sql-monali-2-batch18.database.windows.net"
+		},
+		"ls_aa_one_hub_project_target_properties_typeProperties_database": {
+			"type": "string",
+			"defaultValue": "azure-db-monali-2-batch18"
+		},
+		"ls_aa_one_hub_project_target_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "monaligothi1303"
 		},
 		"ls_adls_monali_batch18_properties_typeProperties_url": {
 			"type": "string",
@@ -195,6 +227,50 @@
 					"accountKey": {
 						"type": "SecureString",
 						"value": "[parameters('ls_aa_one_hub_project_adls_accountKey')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_aa_one_hub_project_source')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('ls_aa_one_hub_project_source_properties_typeProperties_server')]",
+					"database": "[parameters('ls_aa_one_hub_project_source_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('ls_aa_one_hub_project_source_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('ls_aa_one_hub_project_source_password')]"
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ls_aa_one_hub_project_target')]",
+			"type": "Microsoft.DataFactory/factories/linkedServices",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"type": "AzureSqlDatabase",
+				"typeProperties": {
+					"server": "[parameters('ls_aa_one_hub_project_target_properties_typeProperties_server')]",
+					"database": "[parameters('ls_aa_one_hub_project_target_properties_typeProperties_database')]",
+					"encrypt": "mandatory",
+					"trustServerCertificate": false,
+					"authenticationType": "SQL",
+					"userName": "[parameters('ls_aa_one_hub_project_target_properties_typeProperties_userName')]",
+					"password": {
+						"type": "SecureString",
+						"value": "[parameters('ls_aa_one_hub_project_target_password')]"
 					}
 				}
 			},
@@ -461,6 +537,69 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ds_aa_get_metadata_for_source_list')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_aa_one_hub_project_adls",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileSystem": "source"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_aa_one_hub_project_adls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_aa_source_copy_csv_sap')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_aa_one_hub_project_adls",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"filename": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().filename",
+							"type": "Expression"
+						},
+						"fileSystem": "source"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_aa_one_hub_project_adls')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ds_aa_source_copy_from_adls_to_bronze')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -630,112 +769,6 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ls_aa_one_hub_project_adls')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_aa_target_copy_web')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_aa_one_hub_project_adls",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"fileName": "web2.csv",
-						"fileSystem": "bronze"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": false,
-					"quoteChar": "\""
-				},
-				"schema": [
-					{
-						"type": "String"
-					}
-				]
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_aa_one_hub_project_adls')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_append_variable_with_delete')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_adls_monali_batch18",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"folderPath": "source",
-						"fileSystem": "gen2container"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_adls_monali_batch18')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_filter')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_adls_monali_batch18",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "DelimitedText",
-				"typeProperties": {
-					"location": {
-						"type": "AzureBlobFSLocation",
-						"folderPath": "source",
-						"fileSystem": "gen2container"
-					},
-					"columnDelimiter": ",",
-					"escapeChar": "\\",
-					"firstRowAsHeader": true,
-					"quoteChar": "\""
-				},
-				"schema": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_adls_monali_batch18')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ds_foreach_lookup')]",
-			"type": "Microsoft.DataFactory/factories/datasets",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"linkedServiceName": {
-					"referenceName": "ls_source_db_monali_batch18",
-					"type": "LinkedServiceReference"
-				},
-				"annotations": [],
-				"type": "AzureSqlTable",
-				"schema": [],
-				"typeProperties": {}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_source_db_monali_batch18')]"
 			]
 		}
 	]
