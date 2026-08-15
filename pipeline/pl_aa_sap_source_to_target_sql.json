@@ -100,6 +100,10 @@
 							"typeProperties": {
 								"source": {
 									"type": "AzureSqlSource",
+									"sqlReaderQuery": {
+										"value": "SELECT * from @{item().TableSchemaName}.@{item().TableName} where @{item().WaterMark_Column} > '@{formatDateTime(activity('Lookup to get latest data').output, 'yyyy-MM-ddTHH:mm:ss')}' and @{item().WaterMark_Column} > '@{formatDateTime(activity('Lookup to get watermark value').output, 'yyyy-MM-ddTHH:mm:ss')}'",
+										"type": "Expression"
+									},
 									"queryTimeout": "02:00:00",
 									"partitionOption": "None"
 								},
