@@ -24,6 +24,7 @@
 					],
 					"storeSettings": {
 						"type": "AzureBlobFSReadSettings",
+						"recursive": true,
 						"enablePartitionDiscovery": false
 					},
 					"formatSettings": {
@@ -111,6 +112,10 @@
 										"tablename": {
 											"value": "@item().name",
 											"type": "Expression"
+										},
+										"schemaname": {
+											"value": "@pipeline().parameters.schemaname",
+											"type": "Expression"
 										}
 									}
 								}
@@ -120,6 +125,12 @@
 				}
 			}
 		],
+		"parameters": {
+			"schemaname": {
+				"type": "string",
+				"defaultValue": "dbo"
+			}
+		},
 		"folder": {
 			"name": "Onehub lake"
 		},
