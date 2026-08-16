@@ -1,0 +1,349 @@
+{
+	"name": "pl_delta_load_sap",
+	"properties": {
+		"description": "Delta/incremental load of MARA, VBAP, VBRK from SAP source SQL into target using watermark table (last 9 days on first run).",
+		"activities": [
+			{
+				"name": "Lkp_Watermark_MARA",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT last_loaded_ts FROM dbo.etl_watermark WHERE source_table = 'MARA'",
+						"partitionOption": "None"
+					},
+					"firstRowOnly": true
+				}
+			},
+			{
+				"name": "Copy_MARA",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Lkp_Watermark_MARA",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "SELECT MATNR, ERSDA, LAEDA, MTART, MATKL, MEINS FROM MARA WHERE COALESCE(LAEDA, ERSDA) > '@{activity('Lkp_Watermark_MARA').output.firstRow.last_loaded_ts}'",
+							"type": "Expression"
+						},
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBatchSize": 10000,
+						"preCopyScript": "TRUNCATE TABLE dbo.stg_mara"
+					},
+					"enableStaging": false
+				}
+			},
+			{
+				"name": "Sp_Merge_MARA",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Copy_MARA",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "dbo.usp_merge_mara"
+				}
+			},
+			{
+				"name": "Sp_UpdateWatermark_MARA",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Sp_Merge_MARA",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "dbo.usp_update_watermark",
+					"storedProcedureParameters": {
+						"source_table": {
+							"value": "MARA",
+							"type": "String"
+						},
+						"new_watermark": {
+							"value": {
+								"value": "@utcNow()",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						}
+					}
+				}
+			},
+			{
+				"name": "Lkp_Watermark_VBAP",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT last_loaded_ts FROM dbo.etl_watermark WHERE source_table = 'VBAP'",
+						"partitionOption": "None"
+					},
+					"firstRowOnly": true
+				}
+			},
+			{
+				"name": "Copy_VBAP",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Lkp_Watermark_VBAP",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "SELECT VBELN, POSNR, MATNR, ERDAT, AEDAT, NETWR FROM VBAP WHERE ERDAT > '@{activity('Lkp_Watermark_VBAP').output.firstRow.last_loaded_ts}'",
+							"type": "Expression"
+						},
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBatchSize": 10000,
+						"preCopyScript": "TRUNCATE TABLE dbo.stg_vbap"
+					},
+					"enableStaging": false
+				}
+			},
+			{
+				"name": "Sp_Merge_VBAP",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Copy_VBAP",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "dbo.usp_merge_vbap"
+				}
+			},
+			{
+				"name": "Sp_UpdateWatermark_VBAP",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Sp_Merge_VBAP",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "dbo.usp_update_watermark",
+					"storedProcedureParameters": {
+						"source_table": {
+							"value": "VBAP",
+							"type": "String"
+						},
+						"new_watermark": {
+							"value": {
+								"value": "@utcNow()",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						}
+					}
+				}
+			},
+			{
+				"name": "Lkp_Watermark_VBRK",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT last_loaded_ts FROM dbo.etl_watermark WHERE source_table = 'VBRK'",
+						"partitionOption": "None"
+					},
+					"firstRowOnly": true
+				}
+			},
+			{
+				"name": "Copy_VBRK",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "Lkp_Watermark_VBRK",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "SqlServerSource",
+						"sqlReaderQuery": {
+							"value": "SELECT VBELN, ERDAT, AEDAT, FKART, NETWR FROM VBRK WHERE COALESCE(AEDAT, ERDAT) > '@{activity('Lkp_Watermark_VBRK').output.firstRow.last_loaded_ts}'",
+							"type": "Expression"
+						},
+						"partitionOption": "None"
+					},
+					"sink": {
+						"type": "AzureSqlSink",
+						"writeBatchSize": 10000,
+						"preCopyScript": "TRUNCATE TABLE dbo.stg_vbrk"
+					},
+					"enableStaging": false
+				}
+			},
+			{
+				"name": "Sp_Merge_VBRK",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Copy_VBRK",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "dbo.usp_merge_vbrk"
+				}
+			},
+			{
+				"name": "Sp_UpdateWatermark_VBRK",
+				"type": "SqlServerStoredProcedure",
+				"dependsOn": [
+					{
+						"activity": "Sp_Merge_VBRK",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"storedProcedureName": "dbo.usp_update_watermark",
+					"storedProcedureParameters": {
+						"source_table": {
+							"value": "VBRK",
+							"type": "String"
+						},
+						"new_watermark": {
+							"value": {
+								"value": "@utcNow()",
+								"type": "Expression"
+							},
+							"type": "DateTime"
+						}
+					}
+				}
+			}
+		],
+		"annotations": [
+			"delta-load",
+			"sap",
+			"watermark"
+		]
+	}
+}
