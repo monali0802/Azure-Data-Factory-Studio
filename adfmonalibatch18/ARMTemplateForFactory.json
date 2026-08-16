@@ -563,6 +563,233 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/pl_aa_sap_source_to_target_sql')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "ForEach for table list",
+						"type": "ForEach",
+						"dependsOn": [],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@pipeline().parameters.tablelist",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "Lookup to get latest data",
+									"type": "Lookup",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"sqlReaderQuery": {
+												"value": "SELECT MAX(updated_TS) as NewWatermarkValue from @{item().TableName}",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"dataset": {
+											"referenceName": "ds_aa_lookup_to_getlatest_data",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									}
+								},
+								{
+									"name": "Lookup to get watermark value",
+									"type": "Lookup",
+									"dependsOn": [],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"dataset": {
+											"referenceName": "ds_aa_lookup_to_get_watermark_value",
+											"type": "DatasetReference",
+											"parameters": {
+												"schemaname": {
+													"value": "@item().TableSchemaName",
+													"type": "Expression"
+												}
+											}
+										}
+									}
+								},
+								{
+									"name": "Copy data from source to target sql",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Lookup to get latest data",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										},
+										{
+											"activity": "Lookup to get watermark value",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"sqlReaderQuery": {
+												"value": "SELECT * from @{item().TableSchemaName}.@{item().TableName} where @{item().WaterMark_Column} <= '@{formatDateTime(activity('Lookup to get latest data').output, 'yyyy-MM-ddTHH:mm:ss')}' and @{item().WaterMark_Column} > '@{formatDateTime(activity('Lookup to get watermark value').output, 'yyyy-MM-ddTHH:mm:ss')}'",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "AzureSqlSink",
+											"writeBehavior": "upsert",
+											"upsertSettings": {
+												"useTempDB": true,
+												"keys": [
+													"id"
+												]
+											},
+											"sqlWriterUseTableLock": false,
+											"disableMetricsCollection": false
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_aa_source_copy_data_source_to_target",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_aa_target_copy_data_source_to_target",
+											"type": "DatasetReference",
+											"parameters": {
+												"schemaname": {
+													"value": "@item().TableSchemaName",
+													"type": "Expression"
+												},
+												"tablename": {
+													"value": "@item().TableName",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "Stored procedure to update watermark value",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [
+										{
+											"activity": "Copy data from source to target sql",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[onehub_write_watermark]"
+									},
+									"linkedServiceName": {
+										"referenceName": "ls_aa_one_hub_project_source",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"tablelist": {
+						"type": "array",
+						"defaultValue": [
+							{
+								"TableName": "mara",
+								"TableSchemaName": "dbo",
+								"WaterMark_Column": "last_updated"
+							},
+							{
+								"TableName": "vbap",
+								"TableSchemaName": "dbo",
+								"WaterMark_Column": "last_updated"
+							},
+							{
+								"TableName": "vbrk",
+								"TableSchemaName": "dbo",
+								"WaterMark_Column": "last_updated"
+							}
+						]
+					}
+				},
+				"folder": {
+					"name": "Onehub lake"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/datasets/ds_aa_lookup_to_getlatest_data')]",
+				"[concat(variables('factoryId'), '/datasets/ds_aa_lookup_to_get_watermark_value')]",
+				"[concat(variables('factoryId'), '/datasets/ds_aa_source_copy_data_source_to_target')]",
+				"[concat(variables('factoryId'), '/datasets/ds_aa_target_copy_data_source_to_target')]",
+				"[concat(variables('factoryId'), '/linkedServices/ls_aa_one_hub_project_source')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pl_aa_sap_to_source_sql')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
@@ -687,6 +914,72 @@
 											}
 										}
 									]
+								},
+								{
+									"name": "Copy data structure from source to target sql",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Copy data sap data from adls to source sql",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "AzureSqlSink",
+											"writeBehavior": "insert",
+											"sqlWriterUseTableLock": false,
+											"tableOption": "autoCreate",
+											"disableMetricsCollection": false
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_aa_source_copy_structure_to_target_sql",
+											"type": "DatasetReference",
+											"parameters": {
+												"schemaname": "dbo",
+												"tablename": {
+													"value": "@replace(item().name, '.csv', '')",
+													"type": "Expression"
+												}
+											}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_aa_target_copy_structure_to_target_sql",
+											"type": "DatasetReference",
+											"parameters": {
+												"schemaname": "@pipeline().parameters.schemaname",
+												"tablename": "@replace(item().name, '.csv', '')"
+											}
+										}
+									]
 								}
 							]
 						}
@@ -709,7 +1002,9 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/datasets/ds_aa_get_metadata_for_source_list')]",
 				"[concat(variables('factoryId'), '/datasets/ds_aa_source_copy_csv_sap')]",
-				"[concat(variables('factoryId'), '/datasets/ds_aa_target_copy_to_source_sql')]"
+				"[concat(variables('factoryId'), '/datasets/ds_aa_target_copy_to_source_sql')]",
+				"[concat(variables('factoryId'), '/datasets/ds_aa_source_copy_structure_to_target_sql')]",
+				"[concat(variables('factoryId'), '/datasets/ds_aa_target_copy_structure_to_target_sql')]"
 			]
 		},
 		{
@@ -4813,6 +5108,53 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ds_aa_lookup_to_get_watermark_value')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_aa_one_hub_project_source",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schemaname": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schemaname",
+						"type": "Expression"
+					},
+					"table": "watermarkvalue"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_aa_one_hub_project_source')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_aa_lookup_to_getlatest_data')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_aa_one_hub_project_source",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_aa_one_hub_project_source')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ds_aa_source_copy_csv_sap')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -4846,6 +5188,24 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ls_aa_one_hub_project_adls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_aa_source_copy_data_source_to_target')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_aa_one_hub_project_source",
+					"type": "LinkedServiceReference"
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_aa_one_hub_project_source')]"
 			]
 		},
 		{
@@ -4939,6 +5299,41 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/ds_aa_source_copy_structure_to_target_sql')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_aa_one_hub_project_source",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schemaname": {
+						"type": "string"
+					},
+					"tablename": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schemaname",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().tablename",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_aa_one_hub_project_source')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/ds_aa_source_copy_web')]",
 			"type": "Microsoft.DataFactory/factories/datasets",
 			"apiVersion": "2018-06-01",
@@ -4964,6 +5359,41 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ls_aa_one_hub_project_adls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_aa_target_copy_data_source_to_target')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_aa_one_hub_project_target",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schemaname": {
+						"type": "string"
+					},
+					"tablename": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schemaname",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().tablename",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_aa_one_hub_project_target')]"
 			]
 		},
 		{
@@ -5018,6 +5448,41 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ls_aa_one_hub_project_adls')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_aa_target_copy_structure_to_target_sql')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_aa_one_hub_project_target",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"schemaname": {
+						"type": "string"
+					},
+					"tablename": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlTable",
+				"schema": [],
+				"typeProperties": {
+					"schema": {
+						"value": "@dataset().schemaname",
+						"type": "Expression"
+					},
+					"table": {
+						"value": "@dataset().tablename",
+						"type": "Expression"
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_aa_one_hub_project_target')]"
 			]
 		},
 		{
