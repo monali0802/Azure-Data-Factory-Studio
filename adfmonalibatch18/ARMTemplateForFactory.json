@@ -936,9 +936,16 @@
 									"userProperties": [],
 									"typeProperties": {
 										"source": {
-											"type": "AzureSqlSource",
-											"queryTimeout": "02:00:00",
-											"partitionOption": "None"
+											"type": "DelimitedTextSource",
+											"storeSettings": {
+												"type": "AzureBlobFSReadSettings",
+												"recursive": true,
+												"modifiedDatetimeStart": "2026-08-24T00:00:00.000Z",
+												"enablePartitionDiscovery": false
+											},
+											"formatSettings": {
+												"type": "DelimitedTextReadSettings"
+											}
 										},
 										"sink": {
 											"type": "AzureSqlSink",
@@ -959,12 +966,11 @@
 									},
 									"inputs": [
 										{
-											"referenceName": "ds_aa_source_copy_structure_to_target_sql",
+											"referenceName": "ds_aa_source_copy_csv_sap",
 											"type": "DatasetReference",
 											"parameters": {
-												"schemaname": "dbo",
-												"tablename": {
-													"value": "@replace(item().name, '.csv', '')",
+												"filename": {
+													"value": "@item().name",
 													"type": "Expression"
 												}
 											}
@@ -1003,7 +1009,6 @@
 				"[concat(variables('factoryId'), '/datasets/ds_aa_get_metadata_for_source_list')]",
 				"[concat(variables('factoryId'), '/datasets/ds_aa_source_copy_csv_sap')]",
 				"[concat(variables('factoryId'), '/datasets/ds_aa_target_copy_to_source_sql')]",
-				"[concat(variables('factoryId'), '/datasets/ds_aa_source_copy_structure_to_target_sql')]",
 				"[concat(variables('factoryId'), '/datasets/ds_aa_target_copy_structure_to_target_sql')]"
 			]
 		},
