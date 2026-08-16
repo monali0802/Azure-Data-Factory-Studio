@@ -179,7 +179,11 @@
 							"outputs": [
 								{
 									"referenceName": "ds_aa_target_copy_structure_to_target_sql",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"schemaname": "@pipeline().parameters.schemaname",
+										"tablename": "@replace(item().name, '.csv', '')"
+									}
 								}
 							]
 						}
