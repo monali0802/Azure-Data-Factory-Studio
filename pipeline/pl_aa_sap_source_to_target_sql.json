@@ -101,7 +101,7 @@
 								"source": {
 									"type": "AzureSqlSource",
 									"sqlReaderQuery": {
-										"value": "SELECT * from @{item().TableSchemaName}.@{item().TableName} where @{item().WaterMark_Column} > '@{formatDateTime(activity('Lookup to get latest data').output, 'yyyy-MM-ddTHH:mm:ss')}' and @{item().WaterMark_Column} > '@{formatDateTime(activity('Lookup to get watermark value').output, 'yyyy-MM-ddTHH:mm:ss')}'",
+										"value": "SELECT * from @{item().TableSchemaName}.@{item().TableName} where @{item().WaterMark_Column} <= '@{formatDateTime(activity('Lookup to get latest data').output, 'yyyy-MM-ddTHH:mm:ss')}' and @{item().WaterMark_Column} > '@{formatDateTime(activity('Lookup to get watermark value').output, 'yyyy-MM-ddTHH:mm:ss')}'",
 										"type": "Expression"
 									},
 									"queryTimeout": "02:00:00",
@@ -109,8 +109,15 @@
 								},
 								"sink": {
 									"type": "AzureSqlSink",
-									"writeBehavior": "insert",
-									"sqlWriterUseTableLock": false
+									"writeBehavior": "upsert",
+									"upsertSettings": {
+										"useTempDB": true,
+										"keys": [
+											"id"
+										]
+									},
+									"sqlWriterUseTableLock": false,
+									"disableMetricsCollection": false
 								},
 								"enableStaging": false,
 								"translator": {
@@ -131,9 +138,46 @@
 							"outputs": [
 								{
 									"referenceName": "ds_aa_target_copy_data_source_to_target",
-									"type": "DatasetReference"
+									"type": "DatasetReference",
+									"parameters": {
+										"schemaname": {
+											"value": "@item().TableSchemaName",
+											"type": "Expression"
+										},
+										"tablename": {
+											"value": "@item().TableName",
+											"type": "Expression"
+										}
+									}
 								}
 							]
+						},
+						{
+							"name": "Stored procedure to update watermark value",
+							"type": "SqlServerStoredProcedure",
+							"dependsOn": [
+								{
+									"activity": "Copy data from source to target sql",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"storedProcedureName": "[dbo].[onehub_write_watermark]"
+							},
+							"linkedServiceName": {
+								"referenceName": "ls_aa_one_hub_project_source",
+								"type": "LinkedServiceReference"
+							}
 						}
 					]
 				}
