@@ -5,12 +5,6 @@
 		"factoryName": {
 			"value": "adfmonalibatch18"
 		},
-		"HttpServer1_password": {
-			"value": ""
-		},
-		"RestService1_password": {
-			"value": ""
-		},
 		"ls_aa_one_hub_project_adls_accountKey": {
 			"value": ""
 		},
@@ -28,18 +22,6 @@
 		},
 		"ls_source_db_monali_batch18_password": {
 			"value": ""
-		},
-		"HttpServer1_properties_typeProperties_url": {
-			"value": "http://192.168.1.9:8000/api/sap/mara"
-		},
-		"HttpServer1_properties_typeProperties_userName": {
-			"value": "test"
-		},
-		"RestService1_properties_typeProperties_url": {
-			"value": "http://192.168.1.9:8000/api/sap/mara"
-		},
-		"RestService1_properties_typeProperties_userName": {
-			"value": "test"
 		},
 		"ls_aa_one_hub_project_adls_properties_typeProperties_url": {
 			"value": "https://adlsmonalibatch18onehub.dfs.core.windows.net/"

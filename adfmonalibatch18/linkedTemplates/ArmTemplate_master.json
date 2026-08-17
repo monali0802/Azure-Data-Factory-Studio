@@ -7,14 +7,6 @@
 			"metadata": "Data Factory name",
 			"defaultValue": "adfmonalibatch18"
 		},
-		"HttpServer1_password": {
-			"type": "secureString",
-			"metadata": "Secure string for 'password' of 'HttpServer1'"
-		},
-		"RestService1_password": {
-			"type": "secureString",
-			"metadata": "Secure string for 'password' of 'RestService1'"
-		},
 		"ls_aa_one_hub_project_adls_accountKey": {
 			"type": "secureString",
 			"metadata": "Secure string for 'accountKey' of 'ls_aa_one_hub_project_adls'"
@@ -38,22 +30,6 @@
 		"ls_source_db_monali_batch18_password": {
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'ls_source_db_monali_batch18'"
-		},
-		"HttpServer1_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "http://192.168.1.9:8000/api/sap/mara"
-		},
-		"HttpServer1_properties_typeProperties_userName": {
-			"type": "string",
-			"defaultValue": "test"
-		},
-		"RestService1_properties_typeProperties_url": {
-			"type": "string",
-			"defaultValue": "http://192.168.1.9:8000/api/sap/mara"
-		},
-		"RestService1_properties_typeProperties_userName": {
-			"type": "string",
-			"defaultValue": "test"
 		},
 		"ls_aa_one_hub_project_adls_properties_typeProperties_url": {
 			"type": "string",
@@ -138,9 +114,6 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
-					"HttpServer1_password": {
-						"value": "[parameters('HttpServer1_password')]"
-					},
 					"ls_aa_one_hub_project_adls_accountKey": {
 						"value": "[parameters('ls_aa_one_hub_project_adls_accountKey')]"
 					},
@@ -158,12 +131,6 @@
 					},
 					"ls_source_db_monali_batch18_password": {
 						"value": "[parameters('ls_source_db_monali_batch18_password')]"
-					},
-					"HttpServer1_properties_typeProperties_url": {
-						"value": "[parameters('HttpServer1_properties_typeProperties_url')]"
-					},
-					"HttpServer1_properties_typeProperties_userName": {
-						"value": "[parameters('HttpServer1_properties_typeProperties_userName')]"
 					},
 					"ls_aa_one_hub_project_adls_properties_typeProperties_url": {
 						"value": "[parameters('ls_aa_one_hub_project_adls_properties_typeProperties_url')]"
@@ -284,15 +251,6 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
-					},
-					"RestService1_password": {
-						"value": "[parameters('RestService1_password')]"
-					},
-					"RestService1_properties_typeProperties_url": {
-						"value": "[parameters('RestService1_properties_typeProperties_url')]"
-					},
-					"RestService1_properties_typeProperties_userName": {
-						"value": "[parameters('RestService1_properties_typeProperties_userName')]"
 					}
 				}
 			},
