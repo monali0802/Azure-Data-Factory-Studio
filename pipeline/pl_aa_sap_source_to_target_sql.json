@@ -3,9 +3,44 @@
 	"properties": {
 		"activities": [
 			{
+				"name": "Script for check watermark table",
+				"type": "Script",
+				"dependsOn": [],
+				"policy": {
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "ls_aa_one_hub_project_source",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "Query",
+							"text": {
+								"value": "IF NOT EXISTS (\n    SELECT 1 FROM sys.tables\n    WHERE name = '@{pipeline().parameters.watermarktablename}'\n      AND schema_id = SCHEMA_ID('@{pipeline().parameters.schemaname}')\n)\nBEGIN\n    CREATE TABLE [@{pipeline().parameters.schemaname}].[@{pipeline().parameters.watermarktablename}] (\n        tablename     VARCHAR(30)  NOT NULL PRIMARY KEY,\n        last_updated  DATETIME2    NOT NULL\n    );\nEND",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
+				}
+			},
+			{
 				"name": "ForEach for table list",
 				"type": "ForEach",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "Script for check watermark table",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
@@ -15,9 +50,44 @@
 					"isSequential": true,
 					"activities": [
 						{
+							"name": "Script for checking watermark value",
+							"type": "Script",
+							"dependsOn": [],
+							"policy": {
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "ls_aa_one_hub_project_source",
+								"type": "LinkedServiceReference"
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "Query",
+										"text": {
+											"value": "IF NOT EXISTS (SELECT 1 FROM [@{pipeline().parameters.schemaname}].[@{pipeline().parameters.watermarktablename}] WHERE tablename = '@{item().TableName}') INSERT INTO [@{pipeline().parameters.schemaname}].[@{pipeline().parameters.watermarktablename}] (tablename, last_updated) VALUES ('@{item().TableName}', DATEADD(DAY, -@{pipeline().parameters.initial_lookback_days}, SYSUTCDATETIME()))",
+											"type": "Expression"
+										}
+									}
+								],
+								"scriptBlockExecutionTimeout": "02:00:00"
+							}
+						},
+						{
 							"name": "Lookup to get latest data",
 							"type": "Lookup",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "Script for checking watermark value",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
 								"timeout": "0.12:00:00",
 								"retry": 0,
@@ -30,7 +100,7 @@
 								"source": {
 									"type": "AzureSqlSource",
 									"sqlReaderQuery": {
-										"value": "SELECT MAX(updated_TS) as NewWatermarkValue from @{item().TableName}",
+										"value": "SELECT MAX(@{item().WaterMark_Column}) as NewWatermarkValue FROM @{item().TableSchemaName}.@{item().TableName}",
 										"type": "Expression"
 									},
 									"queryTimeout": "02:00:00",
@@ -39,13 +109,21 @@
 								"dataset": {
 									"referenceName": "ds_aa_lookup_to_getlatest_data",
 									"type": "DatasetReference"
-								}
+								},
+								"firstRowOnly": true
 							}
 						},
 						{
 							"name": "Lookup to get watermark value",
 							"type": "Lookup",
-							"dependsOn": [],
+							"dependsOn": [
+								{
+									"activity": "Script for checking watermark value",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
 							"policy": {
 								"timeout": "0.12:00:00",
 								"retry": 0,
@@ -57,6 +135,10 @@
 							"typeProperties": {
 								"source": {
 									"type": "AzureSqlSource",
+									"sqlReaderQuery": {
+										"value": "SELECT watermark_value FROM dbo.etl_watermark WHERE source_table = '@{item().TableName}'",
+										"type": "Expression"
+									},
 									"queryTimeout": "02:00:00",
 									"partitionOption": "None"
 								},
@@ -69,7 +151,8 @@
 											"type": "Expression"
 										}
 									}
-								}
+								},
+								"firstRowOnly": true
 							}
 						},
 						{
@@ -101,7 +184,7 @@
 								"source": {
 									"type": "AzureSqlSource",
 									"sqlReaderQuery": {
-										"value": "SELECT * from @{item().TableSchemaName}.@{item().TableName} where @{item().WaterMark_Column} <= '@{formatDateTime(activity('Lookup to get latest data').output, 'yyyy-MM-ddTHH:mm:ss')}' and @{item().WaterMark_Column} > '@{formatDateTime(activity('Lookup to get watermark value').output, 'yyyy-MM-ddTHH:mm:ss')}'",
+										"value": "SELECT * FROM @{item().TableSchemaName}.@{item().TableName} WHERE @{item().WaterMark_Column} <= '@{formatDateTime(activity('Lookup to get latest data').output.firstRow.NewWatermarkValue, 'yyyy-MM-ddTHH:mm:ss')}' AND @{item().WaterMark_Column} > '@{formatDateTime(activity('Lookup to get watermark value').output.firstRow.watermark_value, 'yyyy-MM-ddTHH:mm:ss')}'",
 										"type": "Expression"
 									},
 									"queryTimeout": "02:00:00",
@@ -112,11 +195,13 @@
 									"writeBehavior": "upsert",
 									"upsertSettings": {
 										"useTempDB": true,
-										"keys": [
-											"id"
-										]
+										"keys": {
+											"value": "@item().Keys",
+											"type": "Expression"
+										}
 									},
 									"sqlWriterUseTableLock": false,
+									"tableOption": "autoCreate",
 									"disableMetricsCollection": false
 								},
 								"enableStaging": false,
@@ -172,7 +257,23 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"storedProcedureName": "[dbo].[onehub_write_watermark]"
+								"storedProcedureName": "[dbo].[onehub_write_watermark]",
+								"storedProcedureParameters": {
+									"TableName": {
+										"value": {
+											"value": "@item().TableName",
+											"type": "Expression"
+										},
+										"type": "String"
+									},
+									"NewWatermarkValue": {
+										"value": {
+											"value": "@activity('Lookup to get latest data').output.firstRow.NewWatermarkValue",
+											"type": "Expression"
+										},
+										"type": "DateTime"
+									}
+								}
 							},
 							"linkedServiceName": {
 								"referenceName": "ls_aa_one_hub_project_source",
@@ -190,19 +291,41 @@
 					{
 						"TableName": "mara",
 						"TableSchemaName": "dbo",
-						"WaterMark_Column": "last_updated"
+						"WaterMark_Column": "last_updated",
+						"Keys": [
+							"matnr"
+						]
 					},
 					{
 						"TableName": "vbap",
 						"TableSchemaName": "dbo",
-						"WaterMark_Column": "last_updated"
+						"WaterMark_Column": "last_updated",
+						"Keys": [
+							"vbeln",
+							"posnr"
+						]
 					},
 					{
 						"TableName": "vbrk",
 						"TableSchemaName": "dbo",
-						"WaterMark_Column": "last_updated"
+						"WaterMark_Column": "last_updated",
+						"Keys": [
+							"vbeln"
+						]
 					}
 				]
+			},
+			"schemaname": {
+				"type": "string",
+				"defaultValue": "dbo"
+			},
+			"watermarktablename": {
+				"type": "string",
+				"defaultValue": "watermarktable"
+			},
+			"initial_lookback_days": {
+				"type": "int",
+				"defaultValue": 9
 			}
 		},
 		"folder": {
