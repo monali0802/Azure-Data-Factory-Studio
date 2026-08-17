@@ -1,9 +1,9 @@
 {
-	"name": "pl_aa_sap_source_to_target_sql",
+	"name": "pl_aa_sap_source_to_target_sql_new",
 	"properties": {
 		"activities": [
 			{
-				"name": "Script for check watermark table",
+				"name": "Script_EnsureWatermarkTable",
 				"type": "Script",
 				"dependsOn": [],
 				"policy": {
@@ -22,7 +22,7 @@
 						{
 							"type": "Query",
 							"text": {
-								"value": "IF NOT EXISTS (\n    SELECT 1 FROM sys.tables\n    WHERE name = '@{pipeline().parameters.watermarktablename}'\n      AND schema_id = SCHEMA_ID('@{pipeline().parameters.schemaname}')\n)\nBEGIN\n    CREATE TABLE [@{pipeline().parameters.schemaname}].[@{pipeline().parameters.watermarktablename}] (\n        tablename     VARCHAR(30)  NOT NULL PRIMARY KEY,\n        last_updated  DATETIME    NOT NULL\n    );\nEND",
+								"value": "IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'etl_watermark' AND schema_id = SCHEMA_ID('dbo')) BEGIN CREATE TABLE dbo.etl_watermark (source_table VARCHAR(50) NOT NULL PRIMARY KEY, watermark_column VARCHAR(50) NOT NULL, watermark_value DATETIME2 NOT NULL); END",
 								"type": "Expression"
 							}
 						}
@@ -35,7 +35,7 @@
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "Script for check watermark table",
+						"activity": "Script_EnsureWatermarkTable",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -50,7 +50,7 @@
 					"isSequential": true,
 					"activities": [
 						{
-							"name": "Script for checking watermark value",
+							"name": "Script_EnsureWatermarkRow",
 							"type": "Script",
 							"dependsOn": [],
 							"policy": {
@@ -69,7 +69,7 @@
 									{
 										"type": "Query",
 										"text": {
-											"value": "IF NOT EXISTS (SELECT 1 FROM [@{pipeline().parameters.schemaname}].[@{pipeline().parameters.watermarktablename}] WHERE tablename = '@{item().TableName}') INSERT INTO [@{pipeline().parameters.schemaname}].[@{pipeline().parameters.watermarktablename}] (tablename, last_updated) VALUES ('@{item().TableName}', DATEADD(DAY, -@{pipeline().parameters.initial_lookback_days}, SYSUTCDATETIME()))",
+											"value": "IF NOT EXISTS (SELECT 1 FROM dbo.etl_watermark WHERE source_table = '@{item().TableName}') INSERT INTO dbo.etl_watermark (source_table, watermark_column, watermark_value) VALUES ('@{item().TableName}', '@{item().WaterMark_Column}', DATEADD(DAY, -9, SYSUTCDATETIME()))",
 											"type": "Expression"
 										}
 									}
@@ -82,7 +82,7 @@
 							"type": "Lookup",
 							"dependsOn": [
 								{
-									"activity": "Script for checking watermark value",
+									"activity": "Script_EnsureWatermarkRow",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -118,7 +118,7 @@
 							"type": "Lookup",
 							"dependsOn": [
 								{
-									"activity": "Script for checking watermark value",
+									"activity": "Script_EnsureWatermarkRow",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -284,7 +284,7 @@
 				}
 			},
 			{
-				"name": "Lookup for glaccount ccode latest updated",
+				"name": "Lookup_GLAccount_MaxUpdatedTs",
 				"type": "Lookup",
 				"dependsOn": [
 					{
@@ -305,10 +305,7 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderQuery": {
-							"value": "SELECT MAX(updated_ts) as NewWatermarkValue FROM @{pipeline().parameters.schemaname}.@{pipeline().parameters.glaccount_ccode}",
-							"type": "Expression"
-						},
+						"sqlReaderQuery": "SELECT MAX(updated_ts) as NewWatermarkValue FROM dbo.glaccount_ccode",
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
@@ -320,7 +317,7 @@
 				}
 			},
 			{
-				"name": "Lookup for get latest updated from delta load",
+				"name": "Lookup_Max_DeltaWatermark",
 				"type": "Lookup",
 				"dependsOn": [
 					{
@@ -341,10 +338,7 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderQuery": {
-							"value": "SELECT MAX(@{pipeline().parameters.watermarkcoulmnname}) as MaxWatermark FROM @{pipeline().parameters.schemaname}.@{pipeline().parameters.watermarktablename}",
-							"type": "Expression"
-						},
+						"sqlReaderQuery": "SELECT MAX(watermark_value) as MaxWatermark FROM dbo.etl_watermark",
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
@@ -352,27 +346,24 @@
 						"referenceName": "ds_aa_lookup_to_get_watermark_value",
 						"type": "DatasetReference",
 						"parameters": {
-							"schemaname": {
-								"value": "@pipeline().parameters.schemaname",
-								"type": "Expression"
-							}
+							"schemaname": "dbo"
 						}
 					},
 					"firstRowOnly": true
 				}
 			},
 			{
-				"name": "If Condition to check latest updated",
+				"name": "IfCondition_GLAccountIsLatest",
 				"type": "IfCondition",
 				"dependsOn": [
 					{
-						"activity": "Lookup for glaccount ccode latest updated",
+						"activity": "Lookup_GLAccount_MaxUpdatedTs",
 						"dependencyConditions": [
 							"Succeeded"
 						]
 					},
 					{
-						"activity": "Lookup for get latest updated from delta load",
+						"activity": "Lookup_Max_DeltaWatermark",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -381,12 +372,12 @@
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
-						"value": "@greater(activity('Lookup for glaccount ccode latest updated').output.firstRow.NewWatermarkValue, activity('Lookup to get latest data').output.firstRow.MaxWatermark)",
+						"value": "@greater(activity('Lookup_GLAccount_MaxUpdatedTs').output.firstRow.NewWatermarkValue, activity('Lookup_Max_DeltaWatermark').output.firstRow.MaxWatermark)",
 						"type": "Expression"
 					},
 					"ifTrueActivities": [
 						{
-							"name": "Copy latest updated glaccount ccode",
+							"name": "Copy_GLAccount_FullSnapshot",
 							"type": "Copy",
 							"dependsOn": [],
 							"policy": {
@@ -400,10 +391,7 @@
 							"typeProperties": {
 								"source": {
 									"type": "AzureSqlSource",
-									"sqlReaderQuery": {
-										"value": "SELECT * FROM @{pipeline().parameters.schemaname}.@{pipeline().parameters.glaccount_ccode}",
-										"type": "Expression"
-									},
+									"sqlReaderQuery": "SELECT * FROM dbo.glaccount_ccode",
 									"queryTimeout": "02:00:00",
 									"partitionOption": "None"
 								},
@@ -442,19 +430,48 @@
 									"referenceName": "ds_aa_target_copy_data_source_to_target",
 									"type": "DatasetReference",
 									"parameters": {
-										"schemaname": {
-											"value": "@pipeline().parameters.schemaname",
-											"type": "Expression"
-										},
-										"tablename": {
-											"value": "@pipeline().parameters.glaccount_ccode",
-											"type": "Expression"
-										}
+										"schemaname": "dbo",
+										"tablename": "glaccount_ccode"
 									}
 								}
 							]
 						}
 					]
+				}
+			},
+			{
+				"name": "Script_RefreshLatestUpdatedSummary",
+				"type": "Script",
+				"dependsOn": [
+					{
+						"activity": "IfCondition_GLAccountIsLatest",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"linkedServiceName": {
+					"referenceName": "ls_aa_one_hub_project_source",
+					"type": "LinkedServiceReference"
+				},
+				"typeProperties": {
+					"scripts": [
+						{
+							"type": "NonQuery",
+							"text": {
+								"value": "IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'latest_updated_summary' AND schema_id = SCHEMA_ID('dbo')) BEGIN CREATE TABLE dbo.latest_updated_summary (tablename VARCHAR(30) NOT NULL PRIMARY KEY, last_updated DATETIME2 NOT NULL, is_latest BIT NOT NULL); END; TRUNCATE TABLE dbo.latest_updated_summary; WITH combined AS (SELECT source_table AS tablename, watermark_value AS last_updated FROM dbo.etl_watermark UNION ALL SELECT 'glaccount_ccode', '@{formatDateTime(activity('Lookup_GLAccount_MaxUpdatedTs').output.firstRow.NewWatermarkValue, 'yyyy-MM-ddTHH:mm:ss')}') INSERT INTO dbo.latest_updated_summary (tablename, last_updated, is_latest) SELECT tablename, last_updated, CASE WHEN last_updated = MAX(last_updated) OVER () THEN 1 ELSE 0 END FROM combined;",
+								"type": "Expression"
+							}
+						}
+					],
+					"scriptBlockExecutionTimeout": "02:00:00"
 				}
 			}
 		],
@@ -488,25 +505,6 @@
 						]
 					}
 				]
-			},
-			"schemaname": {
-				"type": "string",
-				"defaultValue": "dbo"
-			},
-			"watermarktablename": {
-				"type": "string",
-				"defaultValue": "watermarktable"
-			},
-			"initial_lookback_days": {
-				"type": "int",
-				"defaultValue": 9
-			},
-			"glaccount_ccode": {
-				"type": "string",
-				"defaultValue": "glaccount_ccode"
-			},
-			"watermarkcoulmnname": {
-				"type": "string"
 			}
 		},
 		"folder": {
