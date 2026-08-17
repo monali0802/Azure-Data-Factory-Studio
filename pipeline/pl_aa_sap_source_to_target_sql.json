@@ -22,7 +22,7 @@
 						{
 							"type": "Query",
 							"text": {
-								"value": "IF NOT EXISTS (\n    SELECT 1 FROM sys.tables\n    WHERE name = '@{pipeline().parameters.watermarktablename}'\n      AND schema_id = SCHEMA_ID('@{pipeline().parameters.schemaname}')\n)\nBEGIN\n    CREATE TABLE [@{pipeline().parameters.schemaname}].[@{pipeline().parameters.watermarktablename}] (\n        tablename     VARCHAR(30)  NOT NULL PRIMARY KEY,\n        last_updated  DATETIME2    NOT NULL\n    );\nEND",
+								"value": "IF NOT EXISTS (\n    SELECT 1 FROM sys.tables\n    WHERE name = '@{pipeline().parameters.watermarktablename}'\n      AND schema_id = SCHEMA_ID('@{pipeline().parameters.schemaname}')\n)\nBEGIN\n    CREATE TABLE [@{pipeline().parameters.schemaname}].[@{pipeline().parameters.watermarktablename}] (\n        tablename     VARCHAR(30)  NOT NULL PRIMARY KEY,\n        last_updated  DATETIME    NOT NULL\n    );\nEND",
 								"type": "Expression"
 							}
 						}
