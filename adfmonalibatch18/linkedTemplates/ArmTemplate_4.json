@@ -903,234 +903,13 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/pl_aa_sap_source_to_target_sql')]",
+			"name": "[concat(parameters('factoryName'), '/pl_append_variable_with_delete')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"activities": [
 					{
-						"name": "ForEach for table list",
-						"type": "ForEach",
-						"dependsOn": [],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@pipeline().parameters.tablelist",
-								"type": "Expression"
-							},
-							"isSequential": true,
-							"activities": [
-								{
-									"name": "Lookup to get latest data",
-									"type": "Lookup",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "AzureSqlSource",
-											"sqlReaderQuery": {
-												"value": "SELECT MAX(updated_TS) as NewWatermarkValue from @{item().TableName}",
-												"type": "Expression"
-											},
-											"queryTimeout": "02:00:00",
-											"partitionOption": "None"
-										},
-										"dataset": {
-											"referenceName": "ds_aa_lookup_to_getlatest_data",
-											"type": "DatasetReference",
-											"parameters": {}
-										}
-									}
-								},
-								{
-									"name": "Lookup to get watermark value",
-									"type": "Lookup",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "AzureSqlSource",
-											"queryTimeout": "02:00:00",
-											"partitionOption": "None"
-										},
-										"dataset": {
-											"referenceName": "ds_aa_lookup_to_get_watermark_value",
-											"type": "DatasetReference",
-											"parameters": {
-												"schemaname": {
-													"value": "@item().TableSchemaName",
-													"type": "Expression"
-												}
-											}
-										}
-									}
-								},
-								{
-									"name": "Copy data from source to target sql",
-									"type": "Copy",
-									"dependsOn": [
-										{
-											"activity": "Lookup to get latest data",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										},
-										{
-											"activity": "Lookup to get watermark value",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "AzureSqlSource",
-											"sqlReaderQuery": {
-												"value": "SELECT * from @{item().TableSchemaName}.@{item().TableName} where @{item().WaterMark_Column} <= '@{formatDateTime(activity('Lookup to get latest data').output, 'yyyy-MM-ddTHH:mm:ss')}' and @{item().WaterMark_Column} > '@{formatDateTime(activity('Lookup to get watermark value').output, 'yyyy-MM-ddTHH:mm:ss')}'",
-												"type": "Expression"
-											},
-											"queryTimeout": "02:00:00",
-											"partitionOption": "None"
-										},
-										"sink": {
-											"type": "AzureSqlSink",
-											"writeBehavior": "upsert",
-											"upsertSettings": {
-												"useTempDB": true,
-												"keys": [
-													"id"
-												]
-											},
-											"sqlWriterUseTableLock": false,
-											"disableMetricsCollection": false
-										},
-										"enableStaging": false,
-										"translator": {
-											"type": "TabularTranslator",
-											"typeConversion": true,
-											"typeConversionSettings": {
-												"allowDataTruncation": true,
-												"treatBooleanAsNumber": false
-											}
-										}
-									},
-									"inputs": [
-										{
-											"referenceName": "ds_aa_source_copy_data_source_to_target",
-											"type": "DatasetReference",
-											"parameters": {}
-										}
-									],
-									"outputs": [
-										{
-											"referenceName": "ds_aa_target_copy_data_source_to_target",
-											"type": "DatasetReference",
-											"parameters": {
-												"schemaname": {
-													"value": "@item().TableSchemaName",
-													"type": "Expression"
-												},
-												"tablename": {
-													"value": "@item().TableName",
-													"type": "Expression"
-												}
-											}
-										}
-									]
-								},
-								{
-									"name": "Stored procedure to update watermark value",
-									"type": "SqlServerStoredProcedure",
-									"dependsOn": [
-										{
-											"activity": "Copy data from source to target sql",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"storedProcedureName": "[[dbo].[onehub_write_watermark]"
-									},
-									"linkedServiceName": {
-										"referenceName": "ls_aa_one_hub_project_source",
-										"type": "LinkedServiceReference"
-									}
-								}
-							]
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"tablelist": {
-						"type": "array",
-						"defaultValue": [
-							{
-								"TableName": "mara",
-								"TableSchemaName": "dbo",
-								"WaterMark_Column": "last_updated"
-							},
-							{
-								"TableName": "vbap",
-								"TableSchemaName": "dbo",
-								"WaterMark_Column": "last_updated"
-							},
-							{
-								"TableName": "vbrk",
-								"TableSchemaName": "dbo",
-								"WaterMark_Column": "last_updated"
-							}
-						]
-					}
-				},
-				"folder": {
-					"name": "Onehub lake"
-				},
-				"annotations": []
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pl_aa_sap_to_source_sql')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Get Metadata to get all file",
+						"name": "Get Metadata1",
 						"type": "GetMetadata",
 						"dependsOn": [],
 						"policy": {
@@ -1143,7 +922,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"dataset": {
-								"referenceName": "ds_aa_get_metadata_for_source_list",
+								"referenceName": "ds_append_variable_with_delete",
 								"type": "DatasetReference",
 								"parameters": {}
 							},
@@ -1161,11 +940,11 @@
 						}
 					},
 					{
-						"name": "ForEach for copy and insert all tables from source",
+						"name": "ForEach1",
 						"type": "ForEach",
 						"dependsOn": [
 							{
-								"activity": "Get Metadata to get all file",
+								"activity": "Get Metadata1",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -1174,13 +953,12 @@
 						"userProperties": [],
 						"typeProperties": {
 							"items": {
-								"value": "@activity('Get Metadata to get all file').output.childItems",
+								"value": "@activity('Get Metadata1').output.childItems",
 								"type": "Expression"
 							},
-							"isSequential": false,
 							"activities": [
 								{
-									"name": "Copy data sap data from adls to source sql",
+									"name": "Copy data1",
 									"type": "Copy",
 									"dependsOn": [],
 									"policy": {
@@ -1204,11 +982,15 @@
 											}
 										},
 										"sink": {
-											"type": "AzureSqlSink",
-											"writeBehavior": "insert",
-											"sqlWriterUseTableLock": false,
-											"tableOption": "autoCreate",
-											"disableMetricsCollection": false
+											"type": "DelimitedTextSink",
+											"storeSettings": {
+												"type": "AzureBlobFSWriteSettings"
+											},
+											"formatSettings": {
+												"type": "DelimitedTextWriteSettings",
+												"quoteAllText": true,
+												"fileExtension": ".txt"
+											}
 										},
 										"enableStaging": false,
 										"translator": {
@@ -1222,7 +1004,7 @@
 									},
 									"inputs": [
 										{
-											"referenceName": "ds_aa_source_copy_csv_sap",
+											"referenceName": "ds_source_append_variable_with_delete",
 											"type": "DatasetReference",
 											"parameters": {
 												"filename": {
@@ -1234,15 +1016,11 @@
 									],
 									"outputs": [
 										{
-											"referenceName": "ds_aa_target_copy_to_source_sql",
+											"referenceName": "ds_target_append_variable_with_delete",
 											"type": "DatasetReference",
 											"parameters": {
-												"tablename": {
-													"value": "@replace(item().name, '.csv', '')",
-													"type": "Expression"
-												},
-												"schemaname": {
-													"value": "@pipeline().parameters.schemaname",
+												"filename2": {
+													"value": "@item().name",
 													"type": "Expression"
 												}
 											}
@@ -1250,16 +1028,74 @@
 									]
 								},
 								{
-									"name": "Copy data structure from source to target sql",
-									"type": "Copy",
+									"name": "Append variable1",
+									"type": "AppendVariable",
 									"dependsOn": [
 										{
-											"activity": "Copy data sap data from adls to source sql",
+											"activity": "Copy data1",
 											"dependencyConditions": [
 												"Succeeded"
 											]
 										}
 									],
+									"userProperties": [],
+									"typeProperties": {
+										"variableName": "ListOfAppendVariable",
+										"value": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								}
+							]
+						}
+					},
+					{
+						"name": "Set variable1",
+						"type": "SetVariable",
+						"dependsOn": [
+							{
+								"activity": "ForEach1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"variableName": "ListOfSetVariable",
+							"value": {
+								"value": "@variables('ListOfAppendVariable')",
+								"type": "Expression"
+							}
+						}
+					},
+					{
+						"name": "ForEach2",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Set variable1",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@variables('ListOfSetVariable')",
+								"type": "Expression"
+							},
+							"activities": [
+								{
+									"name": "Delete1",
+									"type": "Delete",
+									"dependsOn": [],
 									"policy": {
 										"timeout": "0.12:00:00",
 										"retry": 0,
@@ -1269,57 +1105,25 @@
 									},
 									"userProperties": [],
 									"typeProperties": {
-										"source": {
-											"type": "DelimitedTextSource",
-											"storeSettings": {
-												"type": "AzureBlobFSReadSettings",
-												"recursive": true,
-												"modifiedDatetimeStart": "2026-08-24T00:00:00.000Z",
-												"enablePartitionDiscovery": false
+										"dataset": {
+											"referenceName": "ds_source_delete_append_file",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"logStorageSettings": {
+											"linkedServiceName": {
+												"referenceName": "ls_adls_monali_batch18",
+												"type": "LinkedServiceReference"
 											},
-											"formatSettings": {
-												"type": "DelimitedTextReadSettings"
-											}
+											"path": "gen2container/target/deleted_log"
 										},
-										"sink": {
-											"type": "AzureSqlSink",
-											"writeBehavior": "insert",
-											"sqlWriterUseTableLock": false,
-											"tableOption": "autoCreate",
-											"disableMetricsCollection": false
-										},
-										"enableStaging": false,
-										"translator": {
-											"type": "TabularTranslator",
-											"typeConversion": true,
-											"typeConversionSettings": {
-												"allowDataTruncation": true,
-												"treatBooleanAsNumber": false
-											}
+										"enableLogging": true,
+										"storeSettings": {
+											"type": "AzureBlobFSReadSettings",
+											"recursive": true,
+											"enablePartitionDiscovery": false
 										}
-									},
-									"inputs": [
-										{
-											"referenceName": "ds_aa_source_copy_csv_sap",
-											"type": "DatasetReference",
-											"parameters": {
-												"filename": {
-													"value": "@item().name",
-													"type": "Expression"
-												}
-											}
-										}
-									],
-									"outputs": [
-										{
-											"referenceName": "ds_aa_target_copy_structure_to_target_sql",
-											"type": "DatasetReference",
-											"parameters": {
-												"schemaname": "@pipeline().parameters.schemaname",
-												"tablename": "@replace(item().name, '.csv', '')"
-											}
-										}
-									]
+									}
 								}
 							]
 						}
@@ -1328,16 +1132,87 @@
 				"policy": {
 					"elapsedTimeMetric": {}
 				},
-				"parameters": {
-					"schemaname": {
-						"type": "string",
-						"defaultValue": "dbo"
+				"variables": {
+					"ListOfSetVariable": {
+						"type": "Array"
+					},
+					"ListOfAppendVariable": {
+						"type": "Array"
 					}
 				},
-				"folder": {
-					"name": "Onehub lake"
+				"annotations": [],
+				"lastPublishTime": "2026-07-23T05:29:13Z"
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/pl_copy_adls_to_sql')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Copy data1",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AzureSqlSink",
+								"writeBehavior": "insert",
+								"sqlWriterUseTableLock": false,
+								"tableOption": "autoCreate",
+								"disableMetricsCollection": false
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_source_copy_adls_to_sql",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_target_copy_adls_to_sql",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
 				},
-				"annotations": []
+				"annotations": [],
+				"lastPublishTime": "2026-07-13T17:09:40Z"
 			},
 			"dependsOn": []
 		}
