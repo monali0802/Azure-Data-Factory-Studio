@@ -23,6 +23,9 @@
 		"ls_source_db_monali_batch18_password": {
 			"value": ""
 		},
+		"ls_oracle_password": {
+			"value": ""
+		},
 		"ls_aa_one_hub_project_adls_properties_typeProperties_url": {
 			"value": "https://adlsmonalibatch18onehub.dfs.core.windows.net/"
 		},
@@ -64,6 +67,12 @@
 		},
 		"ls_source_db_monali_batch18_properties_typeProperties_userName": {
 			"value": "monaligothi1303"
+		},
+		"ls_oracle_properties_typeProperties_server": {
+			"value": "(retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.ap-mumbai-1.oraclecloud.com))(connect_data=(service_name=gc67e597b56f8b7_freeatpmonali_high.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes))"
+		},
+		"ls_oracle_properties_typeProperties_username": {
+			"value": "admin"
 		}
 	}
 }
