@@ -306,7 +306,7 @@
 					"source": {
 						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
-							"value": "SELECT MAX(updated_ts) as NewWatermarkValue FROM @{pipeline().parameters.schemaname}.@{pipeline().parameters.glaccount_ccode}",
+							"value": "SELECT MAX(@{pipeline().parameters.watermarkcoulmnname}) as NewWatermarkValue FROM @{pipeline().parameters.schemaname}.@{pipeline().parameters.glaccount_ccode}",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00",
@@ -506,7 +506,8 @@
 				"defaultValue": "glaccount_ccode"
 			},
 			"watermarkcoulmnname": {
-				"type": "string"
+				"type": "string",
+				"defaultValue": "last_updated"
 			}
 		},
 		"folder": {
