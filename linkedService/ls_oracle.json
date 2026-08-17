@@ -1,0 +1,19 @@
+{
+	"name": "ls_oracle",
+	"type": "Microsoft.DataFactory/factories/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "Oracle",
+		"version": "2.0",
+		"typeProperties": {
+			"server": "(retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.ap-mumbai-1.oraclecloud.com))(connect_data=(service_name=gc67e597b56f8b7_freeatpmonali_high.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes))",
+			"authenticationType": "Basic",
+			"username": "admin",
+			"encryptionClient": "accepted",
+			"encryptionTypesClient": "(AES128, AES192, AES256, 3DES112, 3DES168)",
+			"cryptoChecksumClient": "accepted",
+			"cryptoChecksumTypesClient": "(SHA1, SHA256, SHA384, SHA512)",
+			"encryptedCredential": "ew0KICAiVmVyc2lvbiI6ICIyMDE3LTExLTMwIiwNCiAgIlByb3RlY3Rpb25Nb2RlIjogIktleSIsDQogICJTZWNyZXRDb250ZW50VHlwZSI6ICJQbGFpbnRleHQiLA0KICAiQ3JlZGVudGlhbElkIjogIkRBVEFGQUNUT1JZQDY1RDg3Rjg5LTNERUEtNEVBOS1BOUVDLTYxQTNCRjc2NzNDQ18yNjhjYjUwNC0wYTA4LTRlYWEtOGQ1Yy1kNmFiNmUxYWY3YjgiDQp9"
+		}
+	}
+}
