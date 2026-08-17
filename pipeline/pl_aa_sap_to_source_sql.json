@@ -122,7 +122,7 @@
 							]
 						},
 						{
-							"name": "Copy data structure from source to target sql",
+							"name": "Copy structure only to target sql",
 							"type": "Copy",
 							"dependsOn": [
 								{
@@ -142,16 +142,13 @@
 							"userProperties": [],
 							"typeProperties": {
 								"source": {
-									"type": "DelimitedTextSource",
-									"storeSettings": {
-										"type": "AzureBlobFSReadSettings",
-										"recursive": true,
-										"modifiedDatetimeStart": "2026-08-24T00:00:00.000Z",
-										"enablePartitionDiscovery": false
+									"type": "AzureSqlSource",
+									"sqlReaderQuery": {
+										"value": "SELECT TOP 0 * FROM [@{pipeline().parameters.schemaname}].[@{replace(item().name, '.csv', '')}]",
+										"type": "Expression"
 									},
-									"formatSettings": {
-										"type": "DelimitedTextReadSettings"
-									}
+									"queryTimeout": "02:00:00",
+									"partitionOption": "None"
 								},
 								"sink": {
 									"type": "AzureSqlSink",
@@ -172,11 +169,15 @@
 							},
 							"inputs": [
 								{
-									"referenceName": "ds_aa_source_copy_csv_sap",
+									"referenceName": "ds_aa_target_copy_to_source_sql",
 									"type": "DatasetReference",
 									"parameters": {
-										"filename": {
-											"value": "@item().name",
+										"tablename": {
+											"value": "@replace(item().name, '.csv', '')",
+											"type": "Expression"
+										},
+										"schemaname": {
+											"value": "@pipeline().parameters.schemaname",
 											"type": "Expression"
 										}
 									}
@@ -187,8 +188,14 @@
 									"referenceName": "ds_aa_target_copy_structure_to_target_sql",
 									"type": "DatasetReference",
 									"parameters": {
-										"schemaname": "@pipeline().parameters.schemaname",
-										"tablename": "@replace(item().name, '.csv', '')"
+										"schemaname": {
+											"value": "@pipeline().parameters.schemaname",
+											"type": "Expression"
+										},
+										"tablename": {
+											"value": "@replace(item().name, '.csv', '')",
+											"type": "Expression"
+										}
 									}
 								}
 							]
