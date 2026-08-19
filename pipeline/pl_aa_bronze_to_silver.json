@@ -1,0 +1,178 @@
+{
+	"name": "pl_aa_bronze_to_silver",
+	"properties": {
+		"activities": [
+			{
+				"name": "Lookup for glaccount ccode latest updated",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "SELECT MAX(@{pipeline().parameters.watermarkcoulmnname}) as NewWatermarkValue FROM @{pipeline().parameters.schemaname}.@{pipeline().parameters.glaccount_ccode}",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "ds_aa_lookup_to_getlatest_data",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": true
+				}
+			},
+			{
+				"name": "Lookup for get latest updated from delta load",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "SELECT MAX(@{pipeline().parameters.watermarkcoulmnname}) as MaxWatermark FROM @{pipeline().parameters.schemaname}.@{pipeline().parameters.watermarktablename}",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "ds_aa_lookup_to_get_watermark_value",
+						"type": "DatasetReference",
+						"parameters": {
+							"schemaname": {
+								"value": "@pipeline().parameters.schemaname",
+								"type": "Expression"
+							}
+						}
+					},
+					"firstRowOnly": true
+				}
+			},
+			{
+				"name": "If Condition to check latest updated",
+				"type": "IfCondition",
+				"dependsOn": [
+					{
+						"activity": "Lookup for glaccount ccode latest updated",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "Lookup for get latest updated from delta load",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"expression": {
+						"value": "@greater(activity('Lookup for glaccount ccode latest updated').output.firstRow.NewWatermarkValue, activity('Lookup for get latest updated from delta load').output.firstRow.MaxWatermark)",
+						"type": "Expression"
+					},
+					"ifTrueActivities": [
+						{
+							"name": "Copy data from bronze to silver",
+							"type": "Copy",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"source": {
+									"type": "DelimitedTextSource",
+									"storeSettings": {
+										"type": "AzureBlobFSReadSettings",
+										"recursive": true,
+										"enablePartitionDiscovery": false
+									},
+									"formatSettings": {
+										"type": "DelimitedTextReadSettings"
+									}
+								},
+								"sink": {
+									"type": "DelimitedTextSink",
+									"storeSettings": {
+										"type": "AzureBlobFSWriteSettings"
+									},
+									"formatSettings": {
+										"type": "DelimitedTextWriteSettings",
+										"quoteAllText": true,
+										"fileExtension": ".txt"
+									}
+								},
+								"enableStaging": false,
+								"translator": {
+									"type": "TabularTranslator",
+									"typeConversion": true,
+									"typeConversionSettings": {
+										"allowDataTruncation": true,
+										"treatBooleanAsNumber": false
+									}
+								}
+							},
+							"inputs": [
+								{
+									"referenceName": "ds_source_copy_latest_updated_to_silver",
+									"type": "DatasetReference"
+								}
+							],
+							"outputs": [
+								{
+									"referenceName": "ds_target_copy_latest_updated_to_silver",
+									"type": "DatasetReference"
+								}
+							]
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"watermarkcoulmnname": {
+				"type": "string",
+				"defaultValue": "last_updated"
+			},
+			"schemaname": {
+				"type": "string",
+				"defaultValue": "dbo"
+			},
+			"glaccount_ccode": {
+				"type": "string",
+				"defaultValue": "glaccount_ccode"
+			},
+			"watermarktablename": {
+				"type": "string",
+				"defaultValue": "watermarktable"
+			}
+		},
+		"folder": {
+			"name": "Onehub lake"
+		},
+		"annotations": []
+	}
+}

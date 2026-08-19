@@ -381,7 +381,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"expression": {
-						"value": "@greater(activity('Lookup for glaccount ccode latest updated').output.firstRow.NewWatermarkValue, activity('Lookup to get latest data').output.firstRow.MaxWatermark)",
+						"value": "@greater(activity('Lookup for glaccount ccode latest updated').output.firstRow.NewWatermarkValue, activity('Lookup for get latest updated from delta load').output.firstRow.MaxWatermark)",
 						"type": "Expression"
 					},
 					"ifTrueActivities": [
