@@ -1,0 +1,12 @@
+{
+	"name": "ds_aa_source_copy_target_sql_to_bronze",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_aa_one_hub_project_target",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": []
+	}
+}
