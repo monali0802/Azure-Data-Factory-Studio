@@ -13,7 +13,7 @@
 			"encryptionTypesClient": "(AES128, AES192, AES256, 3DES112, 3DES168)",
 			"cryptoChecksumClient": "accepted",
 			"cryptoChecksumTypesClient": "(SHA1, SHA256, SHA384, SHA512)",
-			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiI2MzAzNmZkYi03ZDk0LTRkMDYtYTA5YS05MjM2ZmE0NTI2OTMiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiIwNWVjNTYxMS0zYmY3LTQ5YzEtYjMyZi1jNWEyMTNiMDQ1ZWQiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
 		},
 		"connectVia": {
 			"referenceName": "Orcletable",
