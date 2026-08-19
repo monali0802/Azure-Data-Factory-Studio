@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Script_EnsureWatermarkTable",
+				"name": "Script for check watermark table",
 				"type": "Script",
 				"dependsOn": [],
 				"policy": {
@@ -22,7 +22,7 @@
 						{
 							"type": "Query",
 							"text": {
-								"value": "IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'etl_watermark' AND schema_id = SCHEMA_ID('dbo')) BEGIN CREATE TABLE dbo.etl_watermark (source_table VARCHAR(50) NOT NULL PRIMARY KEY, watermark_column VARCHAR(50) NOT NULL, watermark_value DATETIME2 NOT NULL); END",
+								"value": "IF NOT EXISTS (\n    SELECT 1 FROM sys.tables\n    WHERE name = '@{pipeline().parameters.watermarktablename}'\n      AND schema_id = SCHEMA_ID('@{pipeline().parameters.schemaname}')\n)\nBEGIN\n    CREATE TABLE [@{pipeline().parameters.schemaname}].[@{pipeline().parameters.watermarktablename}] (\n        tablename     VARCHAR(30)  NOT NULL PRIMARY KEY,\n        last_updated  DATETIME    NOT NULL\n    );\nEND",
 								"type": "Expression"
 							}
 						}
@@ -35,7 +35,7 @@
 				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "Script_EnsureWatermarkTable",
+						"activity": "Script for check watermark table",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -50,7 +50,7 @@
 					"isSequential": true,
 					"activities": [
 						{
-							"name": "Script_EnsureWatermarkRow",
+							"name": "Script for checking watermark value",
 							"type": "Script",
 							"dependsOn": [],
 							"policy": {
@@ -69,7 +69,7 @@
 									{
 										"type": "Query",
 										"text": {
-											"value": "IF NOT EXISTS (SELECT 1 FROM dbo.etl_watermark WHERE source_table = '@{item().TableName}') INSERT INTO dbo.etl_watermark (source_table, watermark_column, watermark_value) VALUES ('@{item().TableName}', '@{item().WaterMark_Column}', DATEADD(DAY, -9, SYSUTCDATETIME()))",
+											"value": "IF NOT EXISTS (SELECT 1 FROM [@{pipeline().parameters.schemaname}].[@{pipeline().parameters.watermarktablename}] WHERE tablename = '@{item().TableName}') INSERT INTO [@{pipeline().parameters.schemaname}].[@{pipeline().parameters.watermarktablename}] (tablename, last_updated) VALUES ('@{item().TableName}', DATEADD(DAY, -@{pipeline().parameters.initial_lookback_days}, SYSUTCDATETIME()))",
 											"type": "Expression"
 										}
 									}
@@ -82,7 +82,7 @@
 							"type": "Lookup",
 							"dependsOn": [
 								{
-									"activity": "Script_EnsureWatermarkRow",
+									"activity": "Script for checking watermark value",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -118,7 +118,7 @@
 							"type": "Lookup",
 							"dependsOn": [
 								{
-									"activity": "Script_EnsureWatermarkRow",
+									"activity": "Script for checking watermark value",
 									"dependencyConditions": [
 										"Succeeded"
 									]
@@ -313,6 +313,22 @@
 						]
 					}
 				]
+			},
+			"schemaname": {
+				"type": "string",
+				"defaultValue": "dbo"
+			},
+			"watermarktablename": {
+				"type": "string",
+				"defaultValue": "watermarktable"
+			},
+			"initial_lookback_days": {
+				"type": "int",
+				"defaultValue": 9
+			},
+			"watermarkcoulmnname": {
+				"type": "string",
+				"defaultValue": "last_updated"
 			}
 		},
 		"folder": {
