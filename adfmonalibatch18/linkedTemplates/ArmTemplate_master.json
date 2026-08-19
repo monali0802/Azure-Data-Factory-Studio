@@ -31,10 +31,6 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'ls_source_db_monali_batch18'"
 		},
-		"ls_oracle_password": {
-			"type": "secureString",
-			"metadata": "Secure string for 'password' of 'ls_oracle'"
-		},
 		"ls_aa_one_hub_project_adls_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://adlsmonalibatch18onehub.dfs.core.windows.net/"
@@ -91,14 +87,6 @@
 			"type": "string",
 			"defaultValue": "monaligothi1303"
 		},
-		"ls_oracle_properties_typeProperties_server": {
-			"type": "string",
-			"defaultValue": "(retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.ap-mumbai-1.oraclecloud.com))(connect_data=(service_name=gc67e597b56f8b7_freeatpmonali_high.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes))"
-		},
-		"ls_oracle_properties_typeProperties_username": {
-			"type": "string",
-			"defaultValue": "admin"
-		},
 		"containerUri": {
 			"type": "string",
 			"metadata": "URI to storage account containing linked ARM templates"
@@ -144,9 +132,6 @@
 					"ls_source_db_monali_batch18_password": {
 						"value": "[parameters('ls_source_db_monali_batch18_password')]"
 					},
-					"ls_oracle_password": {
-						"value": "[parameters('ls_oracle_password')]"
-					},
 					"ls_aa_one_hub_project_adls_properties_typeProperties_url": {
 						"value": "[parameters('ls_aa_one_hub_project_adls_properties_typeProperties_url')]"
 					},
@@ -188,12 +173,6 @@
 					},
 					"ls_source_db_monali_batch18_properties_typeProperties_userName": {
 						"value": "[parameters('ls_source_db_monali_batch18_properties_typeProperties_userName')]"
-					},
-					"ls_oracle_properties_typeProperties_server": {
-						"value": "[parameters('ls_oracle_properties_typeProperties_server')]"
-					},
-					"ls_oracle_properties_typeProperties_username": {
-						"value": "[parameters('ls_oracle_properties_typeProperties_username')]"
 					}
 				}
 			},

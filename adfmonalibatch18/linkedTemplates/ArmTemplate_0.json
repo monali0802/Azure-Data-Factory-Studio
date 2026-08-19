@@ -31,10 +31,6 @@
 			"type": "secureString",
 			"metadata": "Secure string for 'password' of 'ls_source_db_monali_batch18'"
 		},
-		"ls_oracle_password": {
-			"type": "secureString",
-			"metadata": "Secure string for 'password' of 'ls_oracle'"
-		},
 		"ls_aa_one_hub_project_adls_properties_typeProperties_url": {
 			"type": "string",
 			"defaultValue": "https://adlsmonalibatch18onehub.dfs.core.windows.net/"
@@ -90,14 +86,6 @@
 		"ls_source_db_monali_batch18_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "monaligothi1303"
-		},
-		"ls_oracle_properties_typeProperties_server": {
-			"type": "string",
-			"defaultValue": "(retry_count=20)(retry_delay=3)(address=(protocol=tcps)(port=1522)(host=adb.ap-mumbai-1.oraclecloud.com))(connect_data=(service_name=gc67e597b56f8b7_freeatpmonali_high.adb.oraclecloud.com))(security=(ssl_server_dn_match=yes))"
-		},
-		"ls_oracle_properties_typeProperties_username": {
-			"type": "string",
-			"defaultValue": "admin"
 		}
 	},
 	"variables": {
@@ -334,30 +322,6 @@
 			"properties": {
 				"type": "SelfHosted",
 				"typeProperties": {}
-			},
-			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/ls_oracle')]",
-			"type": "Microsoft.DataFactory/factories/linkedServices",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"type": "Oracle",
-				"version": "2.0",
-				"typeProperties": {
-					"server": "[parameters('ls_oracle_properties_typeProperties_server')]",
-					"authenticationType": "Basic",
-					"username": "[parameters('ls_oracle_properties_typeProperties_username')]",
-					"password": {
-						"type": "SecureString",
-						"value": "[parameters('ls_oracle_password')]"
-					},
-					"encryptionClient": "accepted",
-					"encryptionTypesClient": "(AES128, AES192, AES256, 3DES112, 3DES168)",
-					"cryptoChecksumClient": "accepted",
-					"cryptoChecksumTypesClient": "(SHA1, SHA256, SHA384, SHA512)"
-				}
 			},
 			"dependsOn": []
 		},
@@ -701,6 +665,68 @@
 					"quoteChar": "\""
 				},
 				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_adls_monali_batch18')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/ds_aa_source_copy_largest_file_to_silver')]",
+			"type": "Microsoft.DataFactory/factories/datasets",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ls_adls_monali_batch18",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"filename": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@dataset().filename",
+							"type": "Expression"
+						},
+						"folderPath": "source",
+						"fileSystem": "gen2container"
+					},
+					"columnDelimiter": ",",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "customer_id",
+						"type": "String"
+					},
+					{
+						"name": "customer_name",
+						"type": "String"
+					},
+					{
+						"name": "gender",
+						"type": "String"
+					},
+					{
+						"name": "city",
+						"type": "String"
+					},
+					{
+						"name": "state",
+						"type": "String"
+					},
+					{
+						"name": "country",
+						"type": "String"
+					}
+				]
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/linkedServices/ls_adls_monali_batch18')]"
