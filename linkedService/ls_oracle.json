@@ -13,7 +13,7 @@
 			"encryptionTypesClient": "(AES128, AES192, AES256, 3DES112, 3DES168)",
 			"cryptoChecksumClient": "accepted",
 			"cryptoChecksumTypesClient": "(SHA1, SHA256, SHA384, SHA512)",
-			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJmMWQwY2EyMi0wMzA2LTQ5YzMtOWNhYi1mMGU0NmQzNzQ2YTAiLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
+			"encryptedCredential": "eyJDcmVkZW50aWFsSWQiOiJmM2I5NTJmYi01OWJlLTQzY2MtYjdiZS05ZGI2MDM4ZDkzOTciLCJWZXJzaW9uIjoiMi4wIiwiQ2xhc3NUeXBlIjoiTWljcm9zb2Z0LkRhdGFQcm94eS5Db3JlLkludGVyU2VydmljZURhdGFDb250cmFjdC5DcmVkZW50aWFsU1UwNkNZMTQifQ=="
 		},
 		"connectVia": {
 			"referenceName": "Oracle",
