@@ -1014,7 +1014,7 @@
 										"source": {
 											"type": "AzureSqlSource",
 											"sqlReaderQuery": {
-												"value": "SELECT watermark_value FROM [@{pipeline().parameters.schemaname}].[@{pipeline().parameters.watermarktablename}] WHERE tablename = '@{item().TableName}'",
+												"value": "SELECT last_updated as watermark_value FROM [@{pipeline().parameters.schemaname}].[@{pipeline().parameters.watermarktablename}] WHERE tablename = '@{item().TableName}'",
 												"type": "Expression"
 											},
 											"queryTimeout": "02:00:00",
@@ -1361,7 +1361,7 @@
 										"source": {
 											"type": "AzureSqlSource",
 											"sqlReaderQuery": {
-												"value": "SELECT watermark_value FROM [@{pipeline().parameters.schemaname}].[@{pipeline().parameters.watermarktablename}] WHERE tablename = '@{item().TableName}'",
+												"value": "SELECT last_updated as watermark_value FROM [@{pipeline().parameters.schemaname}].[@{pipeline().parameters.watermarktablename}] WHERE tablename = '@{item().TableName}'",
 												"type": "Expression"
 											},
 											"queryTimeout": "02:00:00",
