@@ -1,5 +1,5 @@
 {
-	"name": "pl_aa_oracle_to_adls",
+	"name": "pl_aa_oracle_to_source_sql",
 	"properties": {
 		"activities": [
 			{
@@ -37,7 +37,9 @@
 								"sink": {
 									"type": "AzureSqlSink",
 									"writeBehavior": "insert",
-									"sqlWriterUseTableLock": false
+									"sqlWriterUseTableLock": false,
+									"tableOption": "autoCreate",
+									"disableMetricsCollection": false
 								},
 								"enableStaging": false,
 								"translator": {
@@ -58,7 +60,7 @@
 											"value": "@item()",
 											"type": "Expression"
 										},
-										"schemaname": "FUSION"
+										"schemaname": "ADMIN"
 									}
 								}
 							],
@@ -71,7 +73,7 @@
 											"value": "@item()",
 											"type": "Expression"
 										},
-										"schemaname": "FUSION"
+										"schemaname": "dbo"
 									}
 								}
 							]
