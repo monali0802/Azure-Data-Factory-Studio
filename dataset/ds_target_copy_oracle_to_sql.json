@@ -1,0 +1,30 @@
+{
+	"name": "ds_target_copy_oracle_to_sql",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_aa_one_hub_project_source",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"tablename": {
+				"type": "string"
+			},
+			"schemaname": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": [],
+		"typeProperties": {
+			"schema": {
+				"value": "@dataset().schemaname",
+				"type": "Expression"
+			},
+			"table": {
+				"value": "@dataset().tablename",
+				"type": "Expression"
+			}
+		}
+	}
+}
