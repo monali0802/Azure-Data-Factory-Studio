@@ -591,7 +591,9 @@
 										"sink": {
 											"type": "AzureSqlSink",
 											"writeBehavior": "insert",
-											"sqlWriterUseTableLock": false
+											"sqlWriterUseTableLock": false,
+											"tableOption": "autoCreate",
+											"disableMetricsCollection": false
 										},
 										"enableStaging": false,
 										"translator": {
@@ -612,7 +614,7 @@
 													"value": "@item()",
 													"type": "Expression"
 												},
-												"schemaname": "FUSION"
+												"schemaname": "ADMIN"
 											}
 										}
 									],
@@ -625,7 +627,7 @@
 													"value": "@item()",
 													"type": "Expression"
 												},
-												"schemaname": "FUSION"
+												"schemaname": "dbo"
 											}
 										}
 									]
