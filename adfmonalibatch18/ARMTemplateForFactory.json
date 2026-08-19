@@ -8481,18 +8481,6 @@
 				}
 			},
 			"dependsOn": []
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/saptables')]",
-			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "SelfHosted",
-				"typeProperties": {
-					"selfContainedInteractiveAuthoringEnabled": false
-				}
-			},
-			"dependsOn": []
 		}
 	]
 }
