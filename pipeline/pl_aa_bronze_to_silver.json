@@ -138,13 +138,13 @@
 							},
 							"inputs": [
 								{
-									"referenceName": "ds_source_copy_latest_updated_to_silver",
+									"referenceName": "ds_aa_source_copy_latest_updated_to_silver",
 									"type": "DatasetReference"
 								}
 							],
 							"outputs": [
 								{
-									"referenceName": "ds_target_copy_latest_updated_to_silver",
+									"referenceName": "ds_aa_target_copy_latest_updated_to_silver",
 									"type": "DatasetReference"
 								}
 							]

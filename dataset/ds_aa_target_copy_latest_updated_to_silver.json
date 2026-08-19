@@ -1,5 +1,5 @@
 {
-	"name": "ds_target_copy_latest_updated_to_silver",
+	"name": "ds_aa_target_copy_latest_updated_to_silver",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "ls_aa_one_hub_project_adls",
