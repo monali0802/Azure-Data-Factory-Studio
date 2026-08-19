@@ -1175,7 +1175,7 @@
 								"TableSchemaName": "dbo",
 								"WaterMark_Column": "last_updated",
 								"Keys": [
-									"matnr"
+									"ACCOUNT_GROUP_ID"
 								]
 							},
 							{
@@ -1183,8 +1183,7 @@
 								"TableSchemaName": "dbo",
 								"WaterMark_Column": "last_updated",
 								"Keys": [
-									"vbeln",
-									"posnr"
+									"ACCOUNT_ASSIGNMENT_ID"
 								]
 							},
 							{
@@ -1192,7 +1191,7 @@
 								"TableSchemaName": "dbo",
 								"WaterMark_Column": "last_updated",
 								"Keys": [
-									"vbeln"
+									"CONTROL_BUDGET_ID"
 								]
 							}
 						]
