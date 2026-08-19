@@ -551,6 +551,344 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/pl_aa_oracle_source_to_target_sql')]",
+			"type": "Microsoft.DataFactory/factories/pipelines",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"activities": [
+					{
+						"name": "Script_EnsureWatermarkTable",
+						"type": "Script",
+						"dependsOn": [],
+						"policy": {
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"linkedServiceName": {
+							"referenceName": "ls_aa_one_hub_project_source",
+							"type": "LinkedServiceReference"
+						},
+						"typeProperties": {
+							"scripts": [
+								{
+									"type": "Query",
+									"text": {
+										"value": "IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'etl_watermark' AND schema_id = SCHEMA_ID('dbo')) BEGIN CREATE TABLE dbo.etl_watermark (source_table VARCHAR(50) NOT NULL PRIMARY KEY, watermark_column VARCHAR(50) NOT NULL, watermark_value DATETIME2 NOT NULL); END",
+										"type": "Expression"
+									}
+								}
+							],
+							"scriptBlockExecutionTimeout": "02:00:00"
+						}
+					},
+					{
+						"name": "ForEach for table list",
+						"type": "ForEach",
+						"dependsOn": [
+							{
+								"activity": "Script_EnsureWatermarkTable",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@pipeline().parameters.tablelist",
+								"type": "Expression"
+							},
+							"isSequential": true,
+							"activities": [
+								{
+									"name": "Script_EnsureWatermarkRow",
+									"type": "Script",
+									"dependsOn": [],
+									"policy": {
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"linkedServiceName": {
+										"referenceName": "ls_aa_one_hub_project_source",
+										"type": "LinkedServiceReference"
+									},
+									"typeProperties": {
+										"scripts": [
+											{
+												"type": "Query",
+												"text": {
+													"value": "IF NOT EXISTS (SELECT 1 FROM dbo.etl_watermark WHERE source_table = '@{item().TableName}') INSERT INTO dbo.etl_watermark (source_table, watermark_column, watermark_value) VALUES ('@{item().TableName}', '@{item().WaterMark_Column}', DATEADD(DAY, -9, SYSUTCDATETIME()))",
+													"type": "Expression"
+												}
+											}
+										],
+										"scriptBlockExecutionTimeout": "02:00:00"
+									}
+								},
+								{
+									"name": "Lookup to get latest data",
+									"type": "Lookup",
+									"dependsOn": [
+										{
+											"activity": "Script_EnsureWatermarkRow",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"sqlReaderQuery": {
+												"value": "SELECT MAX(@{item().WaterMark_Column}) as NewWatermarkValue FROM @{item().TableSchemaName}.@{item().TableName}",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"dataset": {
+											"referenceName": "ds_aa_lookup_to_getlatest_data",
+											"type": "DatasetReference",
+											"parameters": {}
+										},
+										"firstRowOnly": true
+									}
+								},
+								{
+									"name": "Lookup to get watermark value",
+									"type": "Lookup",
+									"dependsOn": [
+										{
+											"activity": "Script_EnsureWatermarkRow",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"sqlReaderQuery": {
+												"value": "SELECT watermark_value FROM dbo.etl_watermark WHERE source_table = '@{item().TableName}'",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"dataset": {
+											"referenceName": "ds_aa_lookup_to_get_watermark_value",
+											"type": "DatasetReference",
+											"parameters": {
+												"schemaname": {
+													"value": "@item().TableSchemaName",
+													"type": "Expression"
+												}
+											}
+										},
+										"firstRowOnly": true
+									}
+								},
+								{
+									"name": "Copy data from source to target sql",
+									"type": "Copy",
+									"dependsOn": [
+										{
+											"activity": "Lookup to get latest data",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										},
+										{
+											"activity": "Lookup to get watermark value",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"source": {
+											"type": "AzureSqlSource",
+											"sqlReaderQuery": {
+												"value": "SELECT * FROM @{item().TableSchemaName}.@{item().TableName} WHERE @{item().WaterMark_Column} <= '@{formatDateTime(activity('Lookup to get latest data').output.firstRow.NewWatermarkValue, 'yyyy-MM-ddTHH:mm:ss')}' AND @{item().WaterMark_Column} > '@{formatDateTime(activity('Lookup to get watermark value').output.firstRow.watermark_value, 'yyyy-MM-ddTHH:mm:ss')}'",
+												"type": "Expression"
+											},
+											"queryTimeout": "02:00:00",
+											"partitionOption": "None"
+										},
+										"sink": {
+											"type": "AzureSqlSink",
+											"writeBehavior": "upsert",
+											"upsertSettings": {
+												"useTempDB": true,
+												"keys": {
+													"value": "@item().Keys",
+													"type": "Expression"
+												}
+											},
+											"sqlWriterUseTableLock": false,
+											"tableOption": "autoCreate",
+											"disableMetricsCollection": false
+										},
+										"enableStaging": false,
+										"translator": {
+											"type": "TabularTranslator",
+											"typeConversion": true,
+											"typeConversionSettings": {
+												"allowDataTruncation": true,
+												"treatBooleanAsNumber": false
+											}
+										}
+									},
+									"inputs": [
+										{
+											"referenceName": "ds_aa_source_copy_data_source_to_target",
+											"type": "DatasetReference",
+											"parameters": {}
+										}
+									],
+									"outputs": [
+										{
+											"referenceName": "ds_aa_target_copy_data_source_to_target",
+											"type": "DatasetReference",
+											"parameters": {
+												"schemaname": {
+													"value": "@item().TableSchemaName",
+													"type": "Expression"
+												},
+												"tablename": {
+													"value": "@item().TableName",
+													"type": "Expression"
+												}
+											}
+										}
+									]
+								},
+								{
+									"name": "Stored procedure to update watermark value",
+									"type": "SqlServerStoredProcedure",
+									"dependsOn": [
+										{
+											"activity": "Copy data from source to target sql",
+											"dependencyConditions": [
+												"Succeeded"
+											]
+										}
+									],
+									"policy": {
+										"timeout": "0.12:00:00",
+										"retry": 0,
+										"retryIntervalInSeconds": 30,
+										"secureOutput": false,
+										"secureInput": false
+									},
+									"userProperties": [],
+									"typeProperties": {
+										"storedProcedureName": "[[dbo].[onehub_write_watermark]",
+										"storedProcedureParameters": {
+											"TableName": {
+												"value": {
+													"value": "@item().TableName",
+													"type": "Expression"
+												},
+												"type": "String"
+											},
+											"NewWatermarkValue": {
+												"value": {
+													"value": "@activity('Lookup to get latest data').output.firstRow.NewWatermarkValue",
+													"type": "Expression"
+												},
+												"type": "DateTime"
+											}
+										}
+									},
+									"linkedServiceName": {
+										"referenceName": "ls_aa_one_hub_project_source",
+										"type": "LinkedServiceReference"
+									}
+								}
+							]
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"tablelist": {
+						"type": "array",
+						"defaultValue": [
+							{
+								"TableName": "XCC_ACCOUNT_GROUPS",
+								"TableSchemaName": "dbo",
+								"WaterMark_Column": "last_updated",
+								"Keys": [
+									"matnr"
+								]
+							},
+							{
+								"TableName": "XCC_CB_ACCOUNT_ASSGNS",
+								"TableSchemaName": "dbo",
+								"WaterMark_Column": "last_updated",
+								"Keys": [
+									"vbeln",
+									"posnr"
+								]
+							},
+							{
+								"TableName": "XCC_CONTROL_BUDGETS",
+								"TableSchemaName": "dbo",
+								"WaterMark_Column": "last_updated",
+								"Keys": [
+									"vbeln"
+								]
+							}
+						]
+					}
+				},
+				"folder": {
+					"name": "Onehub lake"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/linkedServices/ls_aa_one_hub_project_source')]",
+				"[concat(variables('factoryId'), '/datasets/ds_aa_lookup_to_getlatest_data')]",
+				"[concat(variables('factoryId'), '/datasets/ds_aa_lookup_to_get_watermark_value')]",
+				"[concat(variables('factoryId'), '/datasets/ds_aa_source_copy_data_source_to_target')]",
+				"[concat(variables('factoryId'), '/datasets/ds_aa_target_copy_data_source_to_target')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/pl_aa_oracle_to_source_sql')]",
 			"type": "Microsoft.DataFactory/factories/pipelines",
 			"apiVersion": "2018-06-01",
