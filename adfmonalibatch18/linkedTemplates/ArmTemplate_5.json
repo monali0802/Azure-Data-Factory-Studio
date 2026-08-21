@@ -2393,7 +2393,8 @@
 								"referenceName": "ds_aa_lookup_for_all_table_of_target",
 								"type": "DatasetReference",
 								"parameters": {}
-							}
+							},
+							"firstRowOnly": false
 						}
 					},
 					{
