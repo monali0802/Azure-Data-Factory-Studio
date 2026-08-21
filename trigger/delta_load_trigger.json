@@ -9,6 +9,19 @@
 					"referenceName": "pl_aa_sap_source_to_target_sql",
 					"type": "PipelineReference"
 				}
+			},
+			{
+				"pipelineReference": {
+					"referenceName": "pl_aa_oracle_source_to_target_sql",
+					"type": "PipelineReference"
+				},
+				"parameters": {
+					"tablelist": "@pipeline().parameters.tablelist",
+					"schemaname": "@pipeline().parameters.schemaname",
+					"watermarktablename": "@pipeline().parameters.watermarktablename",
+					"initial_lookback_days": "@pipeline().parameters.initial_lookback_days",
+					"watermarkcoulmnname": "@pipeline().parameters.watermarkcoulmnname"
+				}
 			}
 		],
 		"type": "ScheduleTrigger",
