@@ -12,28 +12,19 @@
 				"parameters": {
 					"tablelist": [
 						{
-							"TableName": "mara",
+							"TableName": "CE_ACCT_HISTORY",
 							"TableSchemaName": "dbo",
-							"WaterMark_Column": "last_updated",
+							"WaterMark_Column": "LAST_UPDATED",
 							"Keys": [
-								"matnr"
+								"ACCT_HISTORY_ID"
 							]
 						},
 						{
-							"TableName": "vbap",
+							"TableName": "CE_BANK_ACCOUNTS",
 							"TableSchemaName": "dbo",
-							"WaterMark_Column": "last_updated",
+							"WaterMark_Column": "LAST_UPDATED",
 							"Keys": [
-								"vbeln",
-								"posnr"
-							]
-						},
-						{
-							"TableName": "vbrk",
-							"TableSchemaName": "dbo",
-							"WaterMark_Column": "last_updated",
-							"Keys": [
-								"vbeln"
+								"BANK_ACCOUNT_ID"
 							]
 						}
 					],
