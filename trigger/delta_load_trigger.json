@@ -73,6 +73,12 @@
 					"glaccount_ccode": "@pipeline().parameters.glaccount_ccode",
 					"watermarkcoulmnname": "@pipeline().parameters.watermarkcoulmnname"
 				}
+			},
+			{
+				"pipelineReference": {
+					"referenceName": "pl_aa_target_sql_to_bronze",
+					"type": "PipelineReference"
+				}
 			}
 		],
 		"type": "ScheduleTrigger",
