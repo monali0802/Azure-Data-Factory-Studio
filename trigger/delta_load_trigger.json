@@ -1,0 +1,22 @@
+{
+	"name": "delta_load_trigger",
+	"properties": {
+		"annotations": [],
+		"runtimeState": "Stopped",
+		"pipelines": [],
+		"type": "ScheduleTrigger",
+		"typeProperties": {
+			"recurrence": {
+				"frequency": "Week",
+				"interval": 2,
+				"startTime": "2026-08-21T10:04:00",
+				"timeZone": "India Standard Time",
+				"schedule": {
+					"weekDays": [
+						"Tuesday"
+					]
+				}
+			}
+		}
+	}
+}
