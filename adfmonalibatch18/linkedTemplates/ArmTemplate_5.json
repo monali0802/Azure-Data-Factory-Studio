@@ -2411,7 +2411,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"items": {
-								"value": "@activity('Lookup all tables').output",
+								"value": "@activity('Lookup all tables').output.value",
 								"type": "Expression"
 							},
 							"isSequential": false,
@@ -2461,11 +2461,11 @@
 											"type": "DatasetReference",
 											"parameters": {
 												"schemaname": {
-													"value": "@pipeline().parameters.schemaname",
+													"value": "@item().TABLE_SCHEMA",
 													"type": "Expression"
 												},
 												"tablename": {
-													"value": "@item().name",
+													"value": "@item().TABLE_NAME",
 													"type": "Expression"
 												}
 											}
@@ -2485,12 +2485,6 @@
 				],
 				"policy": {
 					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"schemaname": {
-						"type": "string",
-						"defaultValue": "dbo"
-					}
 				},
 				"folder": {
 					"name": "Onehub lake"
