@@ -6,12 +6,6 @@
 		"pipelines": [
 			{
 				"pipelineReference": {
-					"referenceName": "pl_aa_sap_source_to_target_sql",
-					"type": "PipelineReference"
-				}
-			},
-			{
-				"pipelineReference": {
 					"referenceName": "pl_aa_oracle_source_to_target_sql",
 					"type": "PipelineReference"
 				},
