@@ -60,7 +60,10 @@
 											"value": "@item()",
 											"type": "Expression"
 										},
-										"schemaname": "ADMIN"
+										"schemaname": {
+											"value": "@pipeline().parameters.schemaname",
+											"type": "Expression"
+										}
 									}
 								}
 							],
@@ -86,10 +89,13 @@
 			"TableList": {
 				"type": "array",
 				"defaultValue": [
-					"XCC_ACCOUNT_GROUPS",
-					"XCC_CB_ACCOUNT_ASSGNS",
-					"XCC_CONTROL_BUDGETS"
+					"CE_ACCOUNT_HISTORY",
+					"CE_BANK_ACCOUNTS"
 				]
+			},
+			"schemaname": {
+				"type": "string",
+				"defaultValue": "ADMIN"
 			}
 		},
 		"folder": {

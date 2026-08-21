@@ -289,27 +289,19 @@
 				"type": "array",
 				"defaultValue": [
 					{
-						"TableName": "XCC_ACCOUNT_GROUPS",
+						"TableName": "CE_ACCOUNT_HISTORY",
 						"TableSchemaName": "dbo",
-						"WaterMark_Column": "last_updated",
+						"WaterMark_Column": "LAST_UPDATE_DATE",
 						"Keys": [
-							"ACCOUNT_GROUP_ID"
+							"ACCT_HISTORY_ID"
 						]
 					},
 					{
-						"TableName": "XCC_CB_ACCOUNT_ASSGNS",
+						"TableName": "CE_BANK_ACCOUNTS",
 						"TableSchemaName": "dbo",
-						"WaterMark_Column": "last_updated",
+						"WaterMark_Column": "LAST_UPDATE_DATE",
 						"Keys": [
-							"ACCOUNT_ASSIGNMENT_ID"
-						]
-					},
-					{
-						"TableName": "XCC_CONTROL_BUDGETS",
-						"TableSchemaName": "dbo",
-						"WaterMark_Column": "last_updated",
-						"Keys": [
-							"CONTROL_BUDGET_ID"
+							"BANK_ACCOUNT_ID"
 						]
 					}
 				]
