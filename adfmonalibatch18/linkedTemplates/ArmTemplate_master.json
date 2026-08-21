@@ -263,15 +263,6 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
-					},
-					"ls_oracle_password": {
-						"value": "[parameters('ls_oracle_password')]"
-					},
-					"ls_oracle_properties_typeProperties_server": {
-						"value": "[parameters('ls_oracle_properties_typeProperties_server')]"
-					},
-					"ls_oracle_properties_typeProperties_username": {
-						"value": "[parameters('ls_oracle_properties_typeProperties_username')]"
 					}
 				}
 			},
@@ -292,6 +283,15 @@
 				"parameters": {
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
+					},
+					"ls_oracle_password": {
+						"value": "[parameters('ls_oracle_password')]"
+					},
+					"ls_oracle_properties_typeProperties_server": {
+						"value": "[parameters('ls_oracle_properties_typeProperties_server')]"
+					},
+					"ls_oracle_properties_typeProperties_username": {
+						"value": "[parameters('ls_oracle_properties_typeProperties_username')]"
 					}
 				}
 			},
@@ -317,6 +317,26 @@
 			},
 			"dependsOn": [
 				"[resourceId('Microsoft.Resources/deployments', 'adfmonalibatch18_ArmTemplate_5')]"
+			]
+		},
+		{
+			"name": "adfmonalibatch18_ArmTemplate_7",
+			"type": "Microsoft.Resources/deployments",
+			"apiVersion": "2024-03-01",
+			"properties": {
+				"mode": "incremental",
+				"templateLink": {
+					"uri": "[concat(parameters('containerUri'), '/ArmTemplate_7.json', parameters('containerSasToken'))]",
+					"contentVersion": "1.0.0.0"
+				},
+				"parameters": {
+					"factoryName": {
+						"value": "[parameters('factoryName')]"
+					}
+				}
+			},
+			"dependsOn": [
+				"[resourceId('Microsoft.Resources/deployments', 'adfmonalibatch18_ArmTemplate_6')]"
 			]
 		}
 	]
