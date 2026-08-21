@@ -79,6 +79,12 @@
 					"referenceName": "pl_aa_target_sql_to_bronze",
 					"type": "PipelineReference"
 				}
+			},
+			{
+				"pipelineReference": {
+					"referenceName": "pl_aa_bronze_to_silver",
+					"type": "PipelineReference"
+				}
 			}
 		],
 		"type": "ScheduleTrigger",
