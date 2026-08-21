@@ -89,7 +89,7 @@
 			"TableList": {
 				"type": "array",
 				"defaultValue": [
-					"CE_ACCOUNT_HISTORY",
+					"CE_ACCT_HISTORY",
 					"CE_BANK_ACCOUNTS"
 				]
 			},

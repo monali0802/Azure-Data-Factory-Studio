@@ -1,0 +1,12 @@
+{
+	"name": "ds_aa_lookup_for_all_table_of_target",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ls_aa_one_hub_project_target",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "AzureSqlTable",
+		"schema": []
+	}
+}

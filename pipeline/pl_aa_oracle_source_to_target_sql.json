@@ -289,7 +289,7 @@
 				"type": "array",
 				"defaultValue": [
 					{
-						"TableName": "CE_ACCOUNT_HISTORY",
+						"TableName": "CE_ACCT_HISTORY",
 						"TableSchemaName": "dbo",
 						"WaterMark_Column": "LAST_UPDATE_DATE",
 						"Keys": [
