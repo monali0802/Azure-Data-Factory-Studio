@@ -10,10 +10,36 @@
 					"type": "PipelineReference"
 				},
 				"parameters": {
-					"tablelist": "@pipeline().parameters.tablelist",
+					"tablelist": [
+						{
+							"TableName": "mara",
+							"TableSchemaName": "dbo",
+							"WaterMark_Column": "last_updated",
+							"Keys": [
+								"matnr"
+							]
+						},
+						{
+							"TableName": "vbap",
+							"TableSchemaName": "dbo",
+							"WaterMark_Column": "last_updated",
+							"Keys": [
+								"vbeln",
+								"posnr"
+							]
+						},
+						{
+							"TableName": "vbrk",
+							"TableSchemaName": "dbo",
+							"WaterMark_Column": "last_updated",
+							"Keys": [
+								"vbeln"
+							]
+						}
+					],
 					"schemaname": "@pipeline().parameters.schemaname",
 					"watermarktablename": "@pipeline().parameters.watermarktablename",
-					"initial_lookback_days": "@pipeline().parameters.initial_lookback_days",
+					"initial_lookback_days": 9,
 					"watermarkcoulmnname": "@pipeline().parameters.watermarkcoulmnname"
 				}
 			},
