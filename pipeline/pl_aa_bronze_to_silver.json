@@ -3,8 +3,8 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "Lookup for glaccount ccode latest updated",
-				"type": "Lookup",
+				"name": "Get Metadata to file list",
+				"type": "GetMetadata",
 				"dependsOn": [],
 				"policy": {
 					"timeout": "0.12:00:00",
@@ -15,69 +15,28 @@
 				},
 				"userProperties": [],
 				"typeProperties": {
-					"source": {
-						"type": "AzureSqlSource",
-						"sqlReaderQuery": {
-							"value": "SELECT MAX(@{pipeline().parameters.watermarkcoulmnname}) as NewWatermarkValue FROM @{pipeline().parameters.schemaname}.@{pipeline().parameters.glaccount_ccode}",
-							"type": "Expression"
-						},
-						"queryTimeout": "02:00:00",
-						"partitionOption": "None"
-					},
 					"dataset": {
-						"referenceName": "ds_aa_lookup_to_getlatest_data",
+						"referenceName": "ds_aa_get_metadata_to_check_bronze",
 						"type": "DatasetReference"
 					},
-					"firstRowOnly": true
+					"fieldList": [
+						"childItems"
+					],
+					"storeSettings": {
+						"type": "AzureBlobFSReadSettings",
+						"enablePartitionDiscovery": false
+					},
+					"formatSettings": {
+						"type": "DelimitedTextReadSettings"
+					}
 				}
 			},
 			{
-				"name": "Lookup for get latest updated from delta load",
-				"type": "Lookup",
-				"dependsOn": [],
-				"policy": {
-					"timeout": "0.12:00:00",
-					"retry": 0,
-					"retryIntervalInSeconds": 30,
-					"secureOutput": false,
-					"secureInput": false
-				},
-				"userProperties": [],
-				"typeProperties": {
-					"source": {
-						"type": "AzureSqlSource",
-						"sqlReaderQuery": {
-							"value": "SELECT MAX(@{pipeline().parameters.watermarkcoulmnname}) as MaxWatermark FROM @{pipeline().parameters.schemaname}.@{pipeline().parameters.watermarktablename}",
-							"type": "Expression"
-						},
-						"queryTimeout": "02:00:00",
-						"partitionOption": "None"
-					},
-					"dataset": {
-						"referenceName": "ds_aa_lookup_to_get_watermark_value",
-						"type": "DatasetReference",
-						"parameters": {
-							"schemaname": {
-								"value": "@pipeline().parameters.schemaname",
-								"type": "Expression"
-							}
-						}
-					},
-					"firstRowOnly": true
-				}
-			},
-			{
-				"name": "If Condition to check latest updated",
-				"type": "IfCondition",
+				"name": "ForEach to get largest file",
+				"type": "ForEach",
 				"dependsOn": [
 					{
-						"activity": "Lookup for glaccount ccode latest updated",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					},
-					{
-						"activity": "Lookup for get latest updated from delta load",
+						"activity": "Get Metadata to file list",
 						"dependencyConditions": [
 							"Succeeded"
 						]
@@ -85,14 +44,15 @@
 				],
 				"userProperties": [],
 				"typeProperties": {
-					"expression": {
-						"value": "@greater(activity('Lookup for glaccount ccode latest updated').output.firstRow.NewWatermarkValue, activity('Lookup for get latest updated from delta load').output.firstRow.MaxWatermark)",
+					"items": {
+						"value": "@activity('Get Metadata to file list').output.childItems",
 						"type": "Expression"
 					},
-					"ifTrueActivities": [
+					"isSequential": true,
+					"activities": [
 						{
-							"name": "Copy data from bronze to silver",
-							"type": "Copy",
+							"name": "Get Metadata to get largest file",
+							"type": "GetMetadata",
 							"dependsOn": [],
 							"policy": {
 								"timeout": "0.12:00:00",
@@ -103,72 +63,173 @@
 							},
 							"userProperties": [],
 							"typeProperties": {
-								"source": {
-									"type": "DelimitedTextSource",
-									"storeSettings": {
-										"type": "AzureBlobFSReadSettings",
-										"recursive": true,
-										"wildcardFileName": "*",
-										"enablePartitionDiscovery": false
-									},
-									"formatSettings": {
-										"type": "DelimitedTextReadSettings"
+								"dataset": {
+									"referenceName": "ds_aa_getmeta_to_get_largest_file",
+									"type": "DatasetReference",
+									"parameters": {
+										"filename": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
 									}
 								},
-								"sink": {
-									"type": "DelimitedTextSink",
-									"storeSettings": {
-										"type": "AzureBlobFSWriteSettings"
-									},
-									"formatSettings": {
-										"type": "DelimitedTextWriteSettings",
-										"quoteAllText": true,
-										"fileExtension": ".txt"
-									}
+								"fieldList": [
+									"size",
+									"itemName"
+								],
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"enablePartitionDiscovery": false
 								},
-								"enableStaging": false,
-								"translator": {
-									"type": "TabularTranslator",
-									"typeConversion": true,
-									"typeConversionSettings": {
-										"allowDataTruncation": true,
-										"treatBooleanAsNumber": false
-									}
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
 								}
-							},
-							"inputs": [
+							}
+						},
+						{
+							"name": "If Condition to check largest file",
+							"type": "IfCondition",
+							"dependsOn": [
 								{
-									"referenceName": "ds_aa_source_copy_latest_updated_to_silver",
-									"type": "DatasetReference"
+									"activity": "Get Metadata to get largest file",
+									"dependencyConditions": [
+										"Succeeded"
+									]
 								}
 							],
-							"outputs": [
-								{
-									"referenceName": "ds_aa_target_copy_latest_updated_to_silver",
-									"type": "DatasetReference"
-								}
-							]
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@greater(activity('Get Metadata to get largest file').output.size,variables('filesize'))",
+									"type": "Expression"
+								},
+								"ifTrueActivities": [
+									{
+										"name": "Set variable for filesize",
+										"type": "SetVariable",
+										"dependsOn": [],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "filesize",
+											"value": {
+												"value": "@activity('Get Metadata to get largest file').output.size",
+												"type": "Expression"
+											}
+										}
+									},
+									{
+										"name": "Set variable for filename",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "Set variable for filesize",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "filename",
+											"value": {
+												"value": "@activity('Get Metadata to get largest file').output.itemName",
+												"type": "Expression"
+											}
+										}
+									}
+								]
+							}
 						}
 					]
 				}
+			},
+			{
+				"name": "Copy data largest file",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "ForEach to get largest file",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_aa_source_copy_largest_file",
+						"type": "DatasetReference",
+						"parameters": {
+							"filename": {
+								"value": "@variables('filename')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_aa_target_copy_largest_file",
+						"type": "DatasetReference"
+					}
+				]
 			}
 		],
-		"parameters": {
-			"watermarkcoulmnname": {
-				"type": "string",
-				"defaultValue": "last_updated"
+		"variables": {
+			"filesize": {
+				"type": "String",
+				"defaultValue": "0"
 			},
-			"schemaname": {
-				"type": "string",
-				"defaultValue": "dbo"
-			},
-			"glaccount_ccode": {
-				"type": "string",
-				"defaultValue": "glaccount_ccode"
-			},
-			"watermarktablename": {
-				"type": "string",
-				"defaultValue": "watermarktable"
+			"filename": {
+				"type": "String"
 			}
 		},
 		"folder": {
