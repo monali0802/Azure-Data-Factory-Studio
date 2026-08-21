@@ -9759,6 +9759,20 @@
 							"glaccount_ccode": "[parameters('delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_glaccount_ccode')]",
 							"watermarkcoulmnname": "[parameters('delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_watermarkcoulmnname')]"
 						}
+					},
+					{
+						"pipelineReference": {
+							"referenceName": "pl_aa_target_sql_to_bronze",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
+					},
+					{
+						"pipelineReference": {
+							"referenceName": "pl_aa_bronze_to_silver",
+							"type": "PipelineReference"
+						},
+						"parameters": {}
 					}
 				],
 				"type": "ScheduleTrigger",
@@ -9782,7 +9796,9 @@
 			},
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/pl_aa_oracle_source_to_target_sql')]",
-				"[concat(variables('factoryId'), '/pipelines/pl_aa_sap_source_to_target_sql')]"
+				"[concat(variables('factoryId'), '/pipelines/pl_aa_sap_source_to_target_sql')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_aa_target_sql_to_bronze')]",
+				"[concat(variables('factoryId'), '/pipelines/pl_aa_bronze_to_silver')]"
 			]
 		},
 		{
