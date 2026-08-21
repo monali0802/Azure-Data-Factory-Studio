@@ -99,6 +99,93 @@
 			"type": "string",
 			"defaultValue": "monaligothi1303"
 		},
+		"delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_tablelist": {
+			"type": "array",
+			"defaultValue": [
+				{
+					"TableName": "CE_ACCT_HISTORY",
+					"TableSchemaName": "dbo",
+					"WaterMark_Column": "LAST_UPDATED",
+					"Keys": [
+						"ACCT_HISTORY_ID"
+					]
+				},
+				{
+					"TableName": "CE_BANK_ACCOUNTS",
+					"TableSchemaName": "dbo",
+					"WaterMark_Column": "LAST_UPDATED",
+					"Keys": [
+						"BANK_ACCOUNT_ID"
+					]
+				}
+			]
+		},
+		"delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_schemaname": {
+			"type": "string",
+			"defaultValue": "@pipeline().parameters.schemaname"
+		},
+		"delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_watermarktablename": {
+			"type": "string",
+			"defaultValue": "@pipeline().parameters.watermarktablename"
+		},
+		"delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_initial_lookback_days": {
+			"type": "int",
+			"defaultValue": 9
+		},
+		"delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_watermarkcoulmnname": {
+			"type": "string",
+			"defaultValue": "@pipeline().parameters.watermarkcoulmnname"
+		},
+		"delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_tablelist": {
+			"type": "array",
+			"defaultValue": [
+				{
+					"TableName": "mara",
+					"TableSchemaName": "dbo",
+					"WaterMark_Column": "last_updated",
+					"Keys": [
+						"matnr"
+					]
+				},
+				{
+					"TableName": "vbap",
+					"TableSchemaName": "dbo",
+					"WaterMark_Column": "last_updated",
+					"Keys": [
+						"vbeln",
+						"posnr"
+					]
+				},
+				{
+					"TableName": "vbrk",
+					"TableSchemaName": "dbo",
+					"WaterMark_Column": "last_updated",
+					"Keys": [
+						"vbeln"
+					]
+				}
+			]
+		},
+		"delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_schemaname": {
+			"type": "string",
+			"defaultValue": "@pipeline().parameters.schemaname"
+		},
+		"delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_watermarktablename": {
+			"type": "string",
+			"defaultValue": "@pipeline().parameters.watermarktablename"
+		},
+		"delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_initial_lookback_days": {
+			"type": "int",
+			"defaultValue": 9
+		},
+		"delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_glaccount_ccode": {
+			"type": "string",
+			"defaultValue": "@pipeline().parameters.glaccount_ccode"
+		},
+		"delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_watermarkcoulmnname": {
+			"type": "string",
+			"defaultValue": "@pipeline().parameters.watermarkcoulmnname"
+		},
 		"trumbling_properties_pipeline_parameters_startdate": {
 			"type": "string",
 			"defaultValue": "@trigger.outputs.windowStartTime"
@@ -1792,537 +1879,6 @@
 					"watermarkcoulmnname": {
 						"type": "string",
 						"defaultValue": "last_updated"
-					}
-				},
-				"folder": {
-					"name": "Onehub lake"
-				},
-				"annotations": []
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/linkedServices/ls_aa_one_hub_project_source')]",
-				"[concat(variables('factoryId'), '/datasets/ds_aa_lookup_to_getlatest_data')]",
-				"[concat(variables('factoryId'), '/datasets/ds_aa_lookup_to_get_watermark_value')]",
-				"[concat(variables('factoryId'), '/datasets/ds_aa_source_copy_data_source_to_target')]",
-				"[concat(variables('factoryId'), '/datasets/ds_aa_target_copy_data_source_to_target')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/pl_aa_sap_source_to_target_sql_new')]",
-			"type": "Microsoft.DataFactory/factories/pipelines",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"activities": [
-					{
-						"name": "Script_EnsureWatermarkTable",
-						"type": "Script",
-						"dependsOn": [],
-						"policy": {
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"linkedServiceName": {
-							"referenceName": "ls_aa_one_hub_project_source",
-							"type": "LinkedServiceReference"
-						},
-						"typeProperties": {
-							"scripts": [
-								{
-									"type": "Query",
-									"text": {
-										"value": "IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'etl_watermark' AND schema_id = SCHEMA_ID('dbo')) BEGIN CREATE TABLE dbo.etl_watermark (source_table VARCHAR(50) NOT NULL PRIMARY KEY, watermark_column VARCHAR(50) NOT NULL, watermark_value DATETIME2 NOT NULL); END",
-										"type": "Expression"
-									}
-								}
-							],
-							"scriptBlockExecutionTimeout": "02:00:00"
-						}
-					},
-					{
-						"name": "ForEach for table list",
-						"type": "ForEach",
-						"dependsOn": [
-							{
-								"activity": "Script_EnsureWatermarkTable",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"items": {
-								"value": "@pipeline().parameters.tablelist",
-								"type": "Expression"
-							},
-							"isSequential": true,
-							"activities": [
-								{
-									"name": "Script_EnsureWatermarkRow",
-									"type": "Script",
-									"dependsOn": [],
-									"policy": {
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"linkedServiceName": {
-										"referenceName": "ls_aa_one_hub_project_source",
-										"type": "LinkedServiceReference"
-									},
-									"typeProperties": {
-										"scripts": [
-											{
-												"type": "Query",
-												"text": {
-													"value": "IF NOT EXISTS (SELECT 1 FROM dbo.etl_watermark WHERE source_table = '@{item().TableName}') INSERT INTO dbo.etl_watermark (source_table, watermark_column, watermark_value) VALUES ('@{item().TableName}', '@{item().WaterMark_Column}', DATEADD(DAY, -9, SYSUTCDATETIME()))",
-													"type": "Expression"
-												}
-											}
-										],
-										"scriptBlockExecutionTimeout": "02:00:00"
-									}
-								},
-								{
-									"name": "Lookup to get latest data",
-									"type": "Lookup",
-									"dependsOn": [
-										{
-											"activity": "Script_EnsureWatermarkRow",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "AzureSqlSource",
-											"sqlReaderQuery": {
-												"value": "SELECT MAX(@{item().WaterMark_Column}) as NewWatermarkValue FROM @{item().TableSchemaName}.@{item().TableName}",
-												"type": "Expression"
-											},
-											"queryTimeout": "02:00:00",
-											"partitionOption": "None"
-										},
-										"dataset": {
-											"referenceName": "ds_aa_lookup_to_getlatest_data",
-											"type": "DatasetReference",
-											"parameters": {}
-										},
-										"firstRowOnly": true
-									}
-								},
-								{
-									"name": "Lookup to get watermark value",
-									"type": "Lookup",
-									"dependsOn": [
-										{
-											"activity": "Script_EnsureWatermarkRow",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "AzureSqlSource",
-											"sqlReaderQuery": {
-												"value": "SELECT watermark_value FROM dbo.etl_watermark WHERE source_table = '@{item().TableName}'",
-												"type": "Expression"
-											},
-											"queryTimeout": "02:00:00",
-											"partitionOption": "None"
-										},
-										"dataset": {
-											"referenceName": "ds_aa_lookup_to_get_watermark_value",
-											"type": "DatasetReference",
-											"parameters": {
-												"schemaname": {
-													"value": "@item().TableSchemaName",
-													"type": "Expression"
-												}
-											}
-										},
-										"firstRowOnly": true
-									}
-								},
-								{
-									"name": "Copy data from source to target sql",
-									"type": "Copy",
-									"dependsOn": [
-										{
-											"activity": "Lookup to get latest data",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										},
-										{
-											"activity": "Lookup to get watermark value",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "AzureSqlSource",
-											"sqlReaderQuery": {
-												"value": "SELECT * FROM @{item().TableSchemaName}.@{item().TableName} WHERE @{item().WaterMark_Column} <= '@{formatDateTime(activity('Lookup to get latest data').output.firstRow.NewWatermarkValue, 'yyyy-MM-ddTHH:mm:ss')}' AND @{item().WaterMark_Column} > '@{formatDateTime(activity('Lookup to get watermark value').output.firstRow.watermark_value, 'yyyy-MM-ddTHH:mm:ss')}'",
-												"type": "Expression"
-											},
-											"queryTimeout": "02:00:00",
-											"partitionOption": "None"
-										},
-										"sink": {
-											"type": "AzureSqlSink",
-											"writeBehavior": "upsert",
-											"upsertSettings": {
-												"useTempDB": true,
-												"keys": {
-													"value": "@item().Keys",
-													"type": "Expression"
-												}
-											},
-											"sqlWriterUseTableLock": false,
-											"tableOption": "autoCreate",
-											"disableMetricsCollection": false
-										},
-										"enableStaging": false,
-										"translator": {
-											"type": "TabularTranslator",
-											"typeConversion": true,
-											"typeConversionSettings": {
-												"allowDataTruncation": true,
-												"treatBooleanAsNumber": false
-											}
-										}
-									},
-									"inputs": [
-										{
-											"referenceName": "ds_aa_source_copy_data_source_to_target",
-											"type": "DatasetReference",
-											"parameters": {}
-										}
-									],
-									"outputs": [
-										{
-											"referenceName": "ds_aa_target_copy_data_source_to_target",
-											"type": "DatasetReference",
-											"parameters": {
-												"schemaname": {
-													"value": "@item().TableSchemaName",
-													"type": "Expression"
-												},
-												"tablename": {
-													"value": "@item().TableName",
-													"type": "Expression"
-												}
-											}
-										}
-									]
-								},
-								{
-									"name": "Stored procedure to update watermark value",
-									"type": "SqlServerStoredProcedure",
-									"dependsOn": [
-										{
-											"activity": "Copy data from source to target sql",
-											"dependencyConditions": [
-												"Succeeded"
-											]
-										}
-									],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"storedProcedureName": "[[dbo].[onehub_write_watermark]",
-										"storedProcedureParameters": {
-											"TableName": {
-												"value": {
-													"value": "@item().TableName",
-													"type": "Expression"
-												},
-												"type": "String"
-											},
-											"NewWatermarkValue": {
-												"value": {
-													"value": "@activity('Lookup to get latest data').output.firstRow.NewWatermarkValue",
-													"type": "Expression"
-												},
-												"type": "DateTime"
-											}
-										}
-									},
-									"linkedServiceName": {
-										"referenceName": "ls_aa_one_hub_project_source",
-										"type": "LinkedServiceReference"
-									}
-								}
-							]
-						}
-					},
-					{
-						"name": "Lookup_GLAccount_MaxUpdatedTs",
-						"type": "Lookup",
-						"dependsOn": [
-							{
-								"activity": "ForEach for table list",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": "SELECT MAX(updated_ts) as NewWatermarkValue FROM dbo.glaccount_ccode",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "ds_aa_lookup_to_getlatest_data",
-								"type": "DatasetReference",
-								"parameters": {}
-							},
-							"firstRowOnly": true
-						}
-					},
-					{
-						"name": "Lookup_Max_DeltaWatermark",
-						"type": "Lookup",
-						"dependsOn": [
-							{
-								"activity": "ForEach for table list",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "AzureSqlSource",
-								"sqlReaderQuery": "SELECT MAX(watermark_value) as MaxWatermark FROM dbo.etl_watermark",
-								"queryTimeout": "02:00:00",
-								"partitionOption": "None"
-							},
-							"dataset": {
-								"referenceName": "ds_aa_lookup_to_get_watermark_value",
-								"type": "DatasetReference",
-								"parameters": {
-									"schemaname": "dbo"
-								}
-							},
-							"firstRowOnly": true
-						}
-					},
-					{
-						"name": "IfCondition_GLAccountIsLatest",
-						"type": "IfCondition",
-						"dependsOn": [
-							{
-								"activity": "Lookup_GLAccount_MaxUpdatedTs",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							},
-							{
-								"activity": "Lookup_Max_DeltaWatermark",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"userProperties": [],
-						"typeProperties": {
-							"expression": {
-								"value": "@greater(activity('Lookup_GLAccount_MaxUpdatedTs').output.firstRow.NewWatermarkValue, activity('Lookup_Max_DeltaWatermark').output.firstRow.MaxWatermark)",
-								"type": "Expression"
-							},
-							"ifTrueActivities": [
-								{
-									"name": "Copy_GLAccount_FullSnapshot",
-									"type": "Copy",
-									"dependsOn": [],
-									"policy": {
-										"timeout": "0.12:00:00",
-										"retry": 0,
-										"retryIntervalInSeconds": 30,
-										"secureOutput": false,
-										"secureInput": false
-									},
-									"userProperties": [],
-									"typeProperties": {
-										"source": {
-											"type": "AzureSqlSource",
-											"sqlReaderQuery": "SELECT * FROM dbo.glaccount_ccode",
-											"queryTimeout": "02:00:00",
-											"partitionOption": "None"
-										},
-										"sink": {
-											"type": "AzureSqlSink",
-											"writeBehavior": "upsert",
-											"upsertSettings": {
-												"useTempDB": true,
-												"keys": [
-													"bukrs",
-													"saknr"
-												]
-											},
-											"sqlWriterUseTableLock": false,
-											"tableOption": "autoCreate",
-											"disableMetricsCollection": false
-										},
-										"enableStaging": false,
-										"translator": {
-											"type": "TabularTranslator",
-											"typeConversion": true,
-											"typeConversionSettings": {
-												"allowDataTruncation": true,
-												"treatBooleanAsNumber": false
-											}
-										}
-									},
-									"inputs": [
-										{
-											"referenceName": "ds_aa_source_copy_data_source_to_target",
-											"type": "DatasetReference",
-											"parameters": {}
-										}
-									],
-									"outputs": [
-										{
-											"referenceName": "ds_aa_target_copy_data_source_to_target",
-											"type": "DatasetReference",
-											"parameters": {
-												"schemaname": "dbo",
-												"tablename": "glaccount_ccode"
-											}
-										}
-									]
-								}
-							]
-						}
-					},
-					{
-						"name": "Script_RefreshLatestUpdatedSummary",
-						"type": "Script",
-						"dependsOn": [
-							{
-								"activity": "IfCondition_GLAccountIsLatest",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"linkedServiceName": {
-							"referenceName": "ls_aa_one_hub_project_source",
-							"type": "LinkedServiceReference"
-						},
-						"typeProperties": {
-							"scripts": [
-								{
-									"type": "NonQuery",
-									"text": {
-										"value": "IF NOT EXISTS (SELECT 1 FROM sys.tables WHERE name = 'latest_updated_summary' AND schema_id = SCHEMA_ID('dbo')) BEGIN CREATE TABLE dbo.latest_updated_summary (tablename VARCHAR(30) NOT NULL PRIMARY KEY, last_updated DATETIME2 NOT NULL, is_latest BIT NOT NULL); END; TRUNCATE TABLE dbo.latest_updated_summary; WITH combined AS (SELECT source_table AS tablename, watermark_value AS last_updated FROM dbo.etl_watermark UNION ALL SELECT 'glaccount_ccode', '@{formatDateTime(activity('Lookup_GLAccount_MaxUpdatedTs').output.firstRow.NewWatermarkValue, 'yyyy-MM-ddTHH:mm:ss')}') INSERT INTO dbo.latest_updated_summary (tablename, last_updated, is_latest) SELECT tablename, last_updated, CASE WHEN last_updated = MAX(last_updated) OVER () THEN 1 ELSE 0 END FROM combined;",
-										"type": "Expression"
-									}
-								}
-							],
-							"scriptBlockExecutionTimeout": "02:00:00"
-						}
-					}
-				],
-				"policy": {
-					"elapsedTimeMetric": {}
-				},
-				"parameters": {
-					"tablelist": {
-						"type": "array",
-						"defaultValue": [
-							{
-								"TableName": "mara",
-								"TableSchemaName": "dbo",
-								"WaterMark_Column": "last_updated",
-								"Keys": [
-									"matnr"
-								]
-							},
-							{
-								"TableName": "vbap",
-								"TableSchemaName": "dbo",
-								"WaterMark_Column": "last_updated",
-								"Keys": [
-									"vbeln",
-									"posnr"
-								]
-							},
-							{
-								"TableName": "vbrk",
-								"TableSchemaName": "dbo",
-								"WaterMark_Column": "last_updated",
-								"Keys": [
-									"vbeln"
-								]
-							}
-						]
 					}
 				},
 				"folder": {
@@ -10174,26 +9730,43 @@
 							"referenceName": "pl_aa_oracle_source_to_target_sql",
 							"type": "PipelineReference"
 						},
-						"parameters": {}
+						"parameters": {
+							"tablelist": "[parameters('delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_tablelist')]",
+							"schemaname": "[parameters('delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_schemaname')]",
+							"watermarktablename": "[parameters('delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_watermarktablename')]",
+							"initial_lookback_days": "[parameters('delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_initial_lookback_days')]",
+							"watermarkcoulmnname": "[parameters('delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_watermarkcoulmnname')]"
+						}
 					},
 					{
 						"pipelineReference": {
 							"referenceName": "pl_aa_sap_source_to_target_sql",
 							"type": "PipelineReference"
 						},
-						"parameters": {}
+						"parameters": {
+							"tablelist": "[parameters('delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_tablelist')]",
+							"schemaname": "[parameters('delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_schemaname')]",
+							"watermarktablename": "[parameters('delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_watermarktablename')]",
+							"initial_lookback_days": "[parameters('delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_initial_lookback_days')]",
+							"glaccount_ccode": "[parameters('delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_glaccount_ccode')]",
+							"watermarkcoulmnname": "[parameters('delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_watermarkcoulmnname')]"
+						}
 					}
 				],
 				"type": "ScheduleTrigger",
 				"typeProperties": {
 					"recurrence": {
-						"frequency": "Week",
-						"interval": 2,
+						"frequency": "Month",
+						"interval": 1,
 						"startTime": "2026-08-21T10:04:00",
+						"endTime": "2026-08-24T19:06:36",
 						"timeZone": "India Standard Time",
 						"schedule": {
-							"weekDays": [
-								"Tuesday"
+							"monthlyOccurrences": [
+								{
+									"day": "Tuesday",
+									"occurrence": 2
+								}
 							]
 						}
 					}

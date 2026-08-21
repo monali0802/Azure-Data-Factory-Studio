@@ -74,6 +74,82 @@
 		"ls_source_db_monali_batch18_properties_typeProperties_userName": {
 			"value": "monaligothi1303"
 		},
+		"delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_tablelist": {
+			"value": [
+				{
+					"TableName": "CE_ACCT_HISTORY",
+					"TableSchemaName": "dbo",
+					"WaterMark_Column": "LAST_UPDATED",
+					"Keys": [
+						"ACCT_HISTORY_ID"
+					]
+				},
+				{
+					"TableName": "CE_BANK_ACCOUNTS",
+					"TableSchemaName": "dbo",
+					"WaterMark_Column": "LAST_UPDATED",
+					"Keys": [
+						"BANK_ACCOUNT_ID"
+					]
+				}
+			]
+		},
+		"delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_schemaname": {
+			"value": "@pipeline().parameters.schemaname"
+		},
+		"delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_watermarktablename": {
+			"value": "@pipeline().parameters.watermarktablename"
+		},
+		"delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_initial_lookback_days": {
+			"value": 9
+		},
+		"delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_watermarkcoulmnname": {
+			"value": "@pipeline().parameters.watermarkcoulmnname"
+		},
+		"delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_tablelist": {
+			"value": [
+				{
+					"TableName": "mara",
+					"TableSchemaName": "dbo",
+					"WaterMark_Column": "last_updated",
+					"Keys": [
+						"matnr"
+					]
+				},
+				{
+					"TableName": "vbap",
+					"TableSchemaName": "dbo",
+					"WaterMark_Column": "last_updated",
+					"Keys": [
+						"vbeln",
+						"posnr"
+					]
+				},
+				{
+					"TableName": "vbrk",
+					"TableSchemaName": "dbo",
+					"WaterMark_Column": "last_updated",
+					"Keys": [
+						"vbeln"
+					]
+				}
+			]
+		},
+		"delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_schemaname": {
+			"value": "@pipeline().parameters.schemaname"
+		},
+		"delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_watermarktablename": {
+			"value": "@pipeline().parameters.watermarktablename"
+		},
+		"delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_initial_lookback_days": {
+			"value": 9
+		},
+		"delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_glaccount_ccode": {
+			"value": "@pipeline().parameters.glaccount_ccode"
+		},
+		"delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_watermarkcoulmnname": {
+			"value": "@pipeline().parameters.watermarkcoulmnname"
+		},
 		"trumbling_properties_pipeline_parameters_startdate": {
 			"value": "@trigger.outputs.windowStartTime"
 		},
