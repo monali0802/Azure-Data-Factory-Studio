@@ -291,7 +291,7 @@
 					{
 						"TableName": "CE_ACCT_HISTORY",
 						"TableSchemaName": "dbo",
-						"WaterMark_Column": "LAST_UPDATE_DATE",
+						"WaterMark_Column": "LAST_UPDATED",
 						"Keys": [
 							"ACCT_HISTORY_ID"
 						]
@@ -299,7 +299,7 @@
 					{
 						"TableName": "CE_BANK_ACCOUNTS",
 						"TableSchemaName": "dbo",
-						"WaterMark_Column": "LAST_UPDATE_DATE",
+						"WaterMark_Column": "LAST_UPDATED",
 						"Keys": [
 							"BANK_ACCOUNT_ID"
 						]
