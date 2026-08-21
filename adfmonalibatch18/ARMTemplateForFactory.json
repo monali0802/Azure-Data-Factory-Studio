@@ -1089,7 +1089,7 @@
 										"source": {
 											"type": "AzureSqlSource",
 											"sqlReaderQuery": {
-												"value": "SELECT * FROM @{item().TableSchemaName}.@{item().TableName} WHERE @{item().WaterMark_Column} <= '@{formatDateTime(activity('Lookup to get latest data').output.firstRow.NewWatermarkValue, 'yyyy-MM-ddTHH:mm:ss')}' AND @{item().WaterMark_Column} > '@{formatDateTime(activity('Lookup to get watermark value').output.firstRow.watermark_value, 'yyyy-MM-ddTHH:mm:ss')}'",
+												"value": "SELECT * FROM @{item().TableSchemaName}.@{item().TableName} WHERE @{item().WaterMark_Column} <= '@{formatDateTime(activity('Lookup to get latest data').output.firstRow.NewWatermarkValue, 'yyyy-MM-ddTHH:mm:ss')}' AND @{item().WaterMark_Column} > '@{formatDateTime(addDays(activity('Lookup to get watermark value').output.firstRow.watermark_value, -9), 'yyyy-MM-ddTHH:mm:ss')}'",
 												"type": "Expression"
 											},
 											"queryTimeout": "02:00:00",
@@ -1097,6 +1097,10 @@
 										},
 										"sink": {
 											"type": "AzureSqlSink",
+											"preCopyScript": {
+												"value": "DELETE FROM @{item().TableName} WHERE @{item().WaterMark_Column} >= DATEADD(day, -9, '@{activity('Lookup to get watermark value').output.firstRow.watermark_value}')",
+												"type": "Expression"
+											},
 											"writeBehavior": "upsert",
 											"upsertSettings": {
 												"useTempDB": true,
@@ -1549,7 +1553,7 @@
 										"source": {
 											"type": "AzureSqlSource",
 											"sqlReaderQuery": {
-												"value": "SELECT * FROM @{item().TableSchemaName}.@{item().TableName} WHERE @{item().WaterMark_Column} <= '@{formatDateTime(activity('Lookup to get latest data').output.firstRow.NewWatermarkValue, 'yyyy-MM-ddTHH:mm:ss')}' AND @{item().WaterMark_Column} > '@{formatDateTime(activity('Lookup to get watermark value').output.firstRow.watermark_value, 'yyyy-MM-ddTHH:mm:ss')}'",
+												"value": "SELECT * FROM @{item().TableSchemaName}.@{item().TableName} WHERE @{item().WaterMark_Column} <= '@{formatDateTime(activity('Lookup to get latest data').output.firstRow.NewWatermarkValue, 'yyyy-MM-ddTHH:mm:ss')}' AND @{item().WaterMark_Column} > '@{formatDateTime(addDays(activity('Lookup to get watermark value').output.firstRow.watermark_value, -9), 'yyyy-MM-ddTHH:mm:ss')}'",
 												"type": "Expression"
 											},
 											"queryTimeout": "02:00:00",
@@ -1557,6 +1561,10 @@
 										},
 										"sink": {
 											"type": "AzureSqlSink",
+											"preCopyScript": {
+												"value": "DELETE FROM @{item().TableName} WHERE @{item().WaterMark_Column} >= DATEADD(day, -9, '@{activity('Lookup to get watermark value').output.firstRow.watermark_value}')\n",
+												"type": "Expression"
+											},
 											"writeBehavior": "upsert",
 											"upsertSettings": {
 												"useTempDB": true,
@@ -9778,22 +9786,12 @@
 			]
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/Orcletable')]",
-			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "SelfHosted",
-				"typeProperties": {}
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/trumbling')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
 			"properties": {
 				"annotations": [],
-				"runtimeState": "Stopped",
+				"runtimeState": "Started",
 				"pipeline": {
 					"pipelineReference": {
 						"referenceName": "pl_trumbling",
@@ -9821,6 +9819,16 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/pl_trumbling')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Orcletable')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"typeProperties": {}
+			},
+			"dependsOn": []
 		}
 	]
 }
