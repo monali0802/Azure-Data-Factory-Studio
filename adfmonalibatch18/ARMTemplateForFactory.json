@@ -98,6 +98,14 @@
 		"ls_source_db_monali_batch18_properties_typeProperties_userName": {
 			"type": "string",
 			"defaultValue": "monaligothi1303"
+		},
+		"trumbling_properties_pipeline_parameters_startdate": {
+			"type": "string",
+			"defaultValue": "@trigger.outputs.windowStartTime"
+		},
+		"trumbling_properties_pipeline_parameters_enddate": {
+			"type": "string",
+			"defaultValue": "@trigger.outputs.windowEndTime"
 		}
 	},
 	"variables": {
@@ -10205,6 +10213,41 @@
 				"typeProperties": {}
 			},
 			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/trumbling')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipeline": {
+					"pipelineReference": {
+						"referenceName": "pl_trumbling",
+						"type": "PipelineReference"
+					},
+					"parameters": {
+						"startdate": "[parameters('trumbling_properties_pipeline_parameters_startdate')]",
+						"enddate": "[parameters('trumbling_properties_pipeline_parameters_enddate')]"
+					}
+				},
+				"type": "TumblingWindowTrigger",
+				"typeProperties": {
+					"frequency": "Hour",
+					"interval": 24,
+					"startTime": "2026-08-21T18:42:00Z",
+					"endTime": "2026-08-22T18:42:00Z",
+					"delay": "00:00:00",
+					"maxConcurrency": 50,
+					"retryPolicy": {
+						"intervalInSeconds": 30
+					},
+					"dependsOn": []
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/pl_trumbling')]"
+			]
 		}
 	]
 }

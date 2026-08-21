@@ -73,6 +73,12 @@
 		},
 		"ls_source_db_monali_batch18_properties_typeProperties_userName": {
 			"value": "monaligothi1303"
+		},
+		"trumbling_properties_pipeline_parameters_startdate": {
+			"value": "@trigger.outputs.windowStartTime"
+		},
+		"trumbling_properties_pipeline_parameters_enddate": {
+			"value": "@trigger.outputs.windowEndTime"
 		}
 	}
 }
