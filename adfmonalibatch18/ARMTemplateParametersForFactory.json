@@ -80,11 +80,46 @@
 		"trumbling_properties_pipeline_parameters_enddate": {
 			"value": "@trigger.outputs.windowEndTime"
 		},
+		"delta_load_trigger_properties_pl_master_pipeline_parameters_TableListOracleDb": {
+			"value": [
+				"CE_ACCT_HISTORY",
+				"CE_BANK_ACCOUNTS"
+			]
+		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_schemaname_oracle": {
 			"value": "@pipeline().parameters.schemaname_oracle"
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_schemaname": {
 			"value": "@pipeline().parameters.schemaname"
+		},
+		"delta_load_trigger_properties_pl_master_pipeline_parameters_tablelistsap": {
+			"value": [
+				{
+					"TableName": "mara",
+					"TableSchemaName": "dbo",
+					"WaterMark_Column": "last_updated",
+					"Keys": [
+						"matnr"
+					]
+				},
+				{
+					"TableName": "vbap",
+					"TableSchemaName": "dbo",
+					"WaterMark_Column": "last_updated",
+					"Keys": [
+						"vbeln",
+						"posnr"
+					]
+				},
+				{
+					"TableName": "vbrk",
+					"TableSchemaName": "dbo",
+					"WaterMark_Column": "last_updated",
+					"Keys": [
+						"vbeln"
+					]
+				}
+			]
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_watermarktablename": {
 			"value": "@pipeline().parameters.watermarktablename"
@@ -97,6 +132,26 @@
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_watermarkcoulmnname": {
 			"value": "@pipeline().parameters.watermarkcoulmnname"
+		},
+		"delta_load_trigger_properties_pl_master_pipeline_parameters_tablelistoracle": {
+			"value": [
+				{
+					"TableName": "CE_ACCT_HISTORY",
+					"TableSchemaName": "dbo",
+					"WaterMark_Column": "LAST_UPDATED",
+					"Keys": [
+						"ACCOUNT_HISTORY_ID"
+					]
+				},
+				{
+					"TableName": "CE_BANK_ACCOUNTS",
+					"TableSchemaName": "dbo",
+					"WaterMark_Column": "LAST_UPDATED",
+					"Keys": [
+						"BANK_ACCOUNT_ID"
+					]
+				}
+			]
 		}
 	}
 }
