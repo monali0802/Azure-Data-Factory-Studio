@@ -99,93 +99,6 @@
 			"type": "string",
 			"defaultValue": "monaligothi1303"
 		},
-		"delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_tablelist": {
-			"type": "array",
-			"defaultValue": [
-				{
-					"TableName": "CE_ACCT_HISTORY",
-					"TableSchemaName": "dbo",
-					"WaterMark_Column": "LAST_UPDATED",
-					"Keys": [
-						"ACCT_HISTORY_ID"
-					]
-				},
-				{
-					"TableName": "CE_BANK_ACCOUNTS",
-					"TableSchemaName": "dbo",
-					"WaterMark_Column": "LAST_UPDATED",
-					"Keys": [
-						"BANK_ACCOUNT_ID"
-					]
-				}
-			]
-		},
-		"delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_schemaname": {
-			"type": "string",
-			"defaultValue": "@pipeline().parameters.schemaname"
-		},
-		"delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_watermarktablename": {
-			"type": "string",
-			"defaultValue": "@pipeline().parameters.watermarktablename"
-		},
-		"delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_initial_lookback_days": {
-			"type": "int",
-			"defaultValue": 9
-		},
-		"delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_watermarkcoulmnname": {
-			"type": "string",
-			"defaultValue": "@pipeline().parameters.watermarkcoulmnname"
-		},
-		"delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_tablelist": {
-			"type": "array",
-			"defaultValue": [
-				{
-					"TableName": "mara",
-					"TableSchemaName": "dbo",
-					"WaterMark_Column": "last_updated",
-					"Keys": [
-						"matnr"
-					]
-				},
-				{
-					"TableName": "vbap",
-					"TableSchemaName": "dbo",
-					"WaterMark_Column": "last_updated",
-					"Keys": [
-						"vbeln",
-						"posnr"
-					]
-				},
-				{
-					"TableName": "vbrk",
-					"TableSchemaName": "dbo",
-					"WaterMark_Column": "last_updated",
-					"Keys": [
-						"vbeln"
-					]
-				}
-			]
-		},
-		"delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_schemaname": {
-			"type": "string",
-			"defaultValue": "@pipeline().parameters.schemaname"
-		},
-		"delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_watermarktablename": {
-			"type": "string",
-			"defaultValue": "@pipeline().parameters.watermarktablename"
-		},
-		"delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_initial_lookback_days": {
-			"type": "int",
-			"defaultValue": 9
-		},
-		"delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_glaccount_ccode": {
-			"type": "string",
-			"defaultValue": "@pipeline().parameters.glaccount_ccode"
-		},
-		"delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_watermarkcoulmnname": {
-			"type": "string",
-			"defaultValue": "@pipeline().parameters.watermarkcoulmnname"
-		},
 		"trumbling_properties_pipeline_parameters_startdate": {
 			"type": "string",
 			"defaultValue": "@trigger.outputs.windowStartTime"
@@ -193,6 +106,30 @@
 		"trumbling_properties_pipeline_parameters_enddate": {
 			"type": "string",
 			"defaultValue": "@trigger.outputs.windowEndTime"
+		},
+		"delta_load_trigger_properties_pl_master_pipeline_parameters_schemaname_oracle": {
+			"type": "string",
+			"defaultValue": "@pipeline().parameters.schemaname_oracle"
+		},
+		"delta_load_trigger_properties_pl_master_pipeline_parameters_schemaname": {
+			"type": "string",
+			"defaultValue": "@pipeline().parameters.schemaname"
+		},
+		"delta_load_trigger_properties_pl_master_pipeline_parameters_watermarktablename": {
+			"type": "string",
+			"defaultValue": "@pipeline().parameters.watermarktablename"
+		},
+		"delta_load_trigger_properties_pl_master_pipeline_parameters_initial_lookback_days": {
+			"type": "int",
+			"defaultValue": 9
+		},
+		"delta_load_trigger_properties_pl_master_pipeline_parameters_glaccount_ccode": {
+			"type": "string",
+			"defaultValue": "@pipeline().parameters.glaccount_ccode"
+		},
+		"delta_load_trigger_properties_pl_master_pipeline_parameters_watermarkcoulmnname": {
+			"type": "string",
+			"defaultValue": "@pipeline().parameters.watermarkcoulmnname"
 		},
 		"containerUri": {
 			"type": "string",
@@ -428,44 +365,29 @@
 					"factoryName": {
 						"value": "[parameters('factoryName')]"
 					},
-					"delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_tablelist": {
-						"value": "[parameters('delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_tablelist')]"
-					},
-					"delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_schemaname": {
-						"value": "[parameters('delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_schemaname')]"
-					},
-					"delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_watermarktablename": {
-						"value": "[parameters('delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_watermarktablename')]"
-					},
-					"delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_initial_lookback_days": {
-						"value": "[parameters('delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_initial_lookback_days')]"
-					},
-					"delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_watermarkcoulmnname": {
-						"value": "[parameters('delta_load_trigger_properties_pl_aa_oracle_source_to_target_sql_parameters_watermarkcoulmnname')]"
-					},
-					"delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_tablelist": {
-						"value": "[parameters('delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_tablelist')]"
-					},
-					"delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_schemaname": {
-						"value": "[parameters('delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_schemaname')]"
-					},
-					"delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_watermarktablename": {
-						"value": "[parameters('delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_watermarktablename')]"
-					},
-					"delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_initial_lookback_days": {
-						"value": "[parameters('delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_initial_lookback_days')]"
-					},
-					"delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_glaccount_ccode": {
-						"value": "[parameters('delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_glaccount_ccode')]"
-					},
-					"delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_watermarkcoulmnname": {
-						"value": "[parameters('delta_load_trigger_properties_pl_aa_sap_source_to_target_sql_parameters_watermarkcoulmnname')]"
-					},
 					"trumbling_properties_pipeline_parameters_startdate": {
 						"value": "[parameters('trumbling_properties_pipeline_parameters_startdate')]"
 					},
 					"trumbling_properties_pipeline_parameters_enddate": {
 						"value": "[parameters('trumbling_properties_pipeline_parameters_enddate')]"
+					},
+					"delta_load_trigger_properties_pl_master_pipeline_parameters_schemaname_oracle": {
+						"value": "[parameters('delta_load_trigger_properties_pl_master_pipeline_parameters_schemaname_oracle')]"
+					},
+					"delta_load_trigger_properties_pl_master_pipeline_parameters_schemaname": {
+						"value": "[parameters('delta_load_trigger_properties_pl_master_pipeline_parameters_schemaname')]"
+					},
+					"delta_load_trigger_properties_pl_master_pipeline_parameters_watermarktablename": {
+						"value": "[parameters('delta_load_trigger_properties_pl_master_pipeline_parameters_watermarktablename')]"
+					},
+					"delta_load_trigger_properties_pl_master_pipeline_parameters_initial_lookback_days": {
+						"value": "[parameters('delta_load_trigger_properties_pl_master_pipeline_parameters_initial_lookback_days')]"
+					},
+					"delta_load_trigger_properties_pl_master_pipeline_parameters_glaccount_ccode": {
+						"value": "[parameters('delta_load_trigger_properties_pl_master_pipeline_parameters_glaccount_ccode')]"
+					},
+					"delta_load_trigger_properties_pl_master_pipeline_parameters_watermarkcoulmnname": {
+						"value": "[parameters('delta_load_trigger_properties_pl_master_pipeline_parameters_watermarkcoulmnname')]"
 					}
 				}
 			},
