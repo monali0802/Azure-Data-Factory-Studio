@@ -5985,14 +5985,7 @@
 					{
 						"name": "Execute Pipeline for sap to source",
 						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Execute Pipeline for api to adls",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
+						"dependsOn": [],
 						"policy": {
 							"secureInput": false
 						},
@@ -6009,14 +6002,7 @@
 					{
 						"name": "Execute Pipeline for oracle to source",
 						"type": "ExecutePipeline",
-						"dependsOn": [
-							{
-								"activity": "Execute Pipeline for adls to adls",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
+						"dependsOn": [],
 						"policy": {
 							"secureInput": false
 						},
@@ -6027,7 +6013,16 @@
 								"type": "PipelineReference"
 							},
 							"waitOnCompletion": true,
-							"parameters": {}
+							"parameters": {
+								"TableList": {
+									"value": "@pipeline().parameters.TableListOracleDb",
+									"type": "Expression"
+								},
+								"schemaname": {
+									"value": "@pipeline().parameters.schemaname_oracle",
+									"type": "Expression"
+								}
+							}
 						}
 					},
 					{
@@ -6051,7 +6046,32 @@
 								"type": "PipelineReference"
 							},
 							"waitOnCompletion": true,
-							"parameters": {}
+							"parameters": {
+								"tablelist": {
+									"value": "@pipeline().parameters.tablelistsap",
+									"type": "Expression"
+								},
+								"schemaname": {
+									"value": "@pipeline().parameters.schemaname",
+									"type": "Expression"
+								},
+								"watermarktablename": {
+									"value": "@pipeline().parameters.watermarktablename",
+									"type": "Expression"
+								},
+								"initial_lookback_days": {
+									"value": "@pipeline().parameters.initial_lookback_days",
+									"type": "Expression"
+								},
+								"glaccount_ccode": {
+									"value": "@pipeline().parameters.glaccount_ccode",
+									"type": "Expression"
+								},
+								"watermarkcoulmnname": {
+									"value": "@pipeline().parameters.watermarkcoulmnname",
+									"type": "Expression"
+								}
+							}
 						}
 					},
 					{
@@ -6075,7 +6095,28 @@
 								"type": "PipelineReference"
 							},
 							"waitOnCompletion": true,
-							"parameters": {}
+							"parameters": {
+								"tablelist": {
+									"value": "@pipeline().parameters.tablelistoracle",
+									"type": "Expression"
+								},
+								"schemaname": {
+									"value": "@pipeline().parameters.schemaname",
+									"type": "Expression"
+								},
+								"watermarktablename": {
+									"value": "@pipeline().parameters.watermarktablename",
+									"type": "Expression"
+								},
+								"initial_lookback_days": {
+									"value": "@pipeline().parameters.initial_lookback_days",
+									"type": "Expression"
+								},
+								"watermarkcoulmnname": {
+									"value": "@pipeline().parameters.watermarkcoulmnname",
+									"type": "Expression"
+								}
+							}
 						}
 					},
 					{
@@ -6135,6 +6176,90 @@
 				],
 				"policy": {
 					"elapsedTimeMetric": {}
+				},
+				"parameters": {
+					"TableListOracleDb": {
+						"type": "array",
+						"defaultValue": [
+							"CE_ACCT_HISTORY",
+							"CE_BANK_ACCOUNTS"
+						]
+					},
+					"schemaname_oracle": {
+						"type": "string",
+						"defaultValue": "ADMIN"
+					},
+					"schemaname": {
+						"type": "string",
+						"defaultValue": "dbo"
+					},
+					"tablelistsap": {
+						"type": "array",
+						"defaultValue": [
+							{
+								"TableName": "mara",
+								"TableSchemaName": "dbo",
+								"WaterMark_Column": "last_updated",
+								"Keys": [
+									"matnr"
+								]
+							},
+							{
+								"TableName": "vbap",
+								"TableSchemaName": "dbo",
+								"WaterMark_Column": "last_updated",
+								"Keys": [
+									"vbeln",
+									"posnr"
+								]
+							},
+							{
+								"TableName": "vbrk",
+								"TableSchemaName": "dbo",
+								"WaterMark_Column": "last_updated",
+								"Keys": [
+									"vbeln"
+								]
+							}
+						]
+					},
+					"watermarktablename": {
+						"type": "string",
+						"defaultValue": "watermarktable"
+					},
+					"initial_lookback_days": {
+						"type": "int",
+						"defaultValue": 9
+					},
+					"glaccount_ccode": {
+						"type": "string",
+						"defaultValue": "glaccount_ccode"
+					},
+					"watermarkcoulmnname": {
+						"type": "string",
+						"defaultValue": "last_updated"
+					},
+					"tablelistoracle": {
+						"type": "array",
+						"defaultValue": [
+							{
+								"TableName": "CE_ACCT_HISTORY",
+								"TableSchemaName": "dbo",
+								"WaterMark_Column": "LAST_UPDATED",
+								"Keys": [
+									"ACCT_HISTORY_ID"
+								]
+							},
+							{
+								"TableName": "CE_BANK_ACCOUNTS",
+								"TableSchemaName": "dbo",
+								"WaterMark_Column": "LAST_UPDATED",
+								"Keys": [
+									"BANK_ACCOUNT_ID"
+								]
+							}
+						]
+					}
 				},
 				"folder": {
 					"name": "Onehub lake"
