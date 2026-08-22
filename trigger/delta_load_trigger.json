@@ -16,7 +16,33 @@
 					],
 					"schemaname_oracle": "@pipeline().parameters.schemaname_oracle",
 					"schemaname": "@pipeline().parameters.schemaname",
-					"tablelistsap": "@pipeline().parameters.TableListOracleDb",
+					"tablelistsap": [
+						{
+							"TableName": "mara",
+							"TableSchemaName": "dbo",
+							"WaterMark_Column": "last_updated",
+							"Keys": [
+								"matnr"
+							]
+						},
+						{
+							"TableName": "vbap",
+							"TableSchemaName": "dbo",
+							"WaterMark_Column": "last_updated",
+							"Keys": [
+								"vbeln",
+								"posnr"
+							]
+						},
+						{
+							"TableName": "vbrk",
+							"TableSchemaName": "dbo",
+							"WaterMark_Column": "last_updated",
+							"Keys": [
+								"vbeln"
+							]
+						}
+					],
 					"watermarktablename": "@pipeline().parameters.watermarktablename",
 					"initial_lookback_days": 9,
 					"glaccount_ccode": "@pipeline().parameters.glaccount_ccode",
