@@ -192,10 +192,6 @@
 								},
 								"sink": {
 									"type": "AzureSqlSink",
-									"preCopyScript": {
-										"value": "DELETE FROM @{item().TableName} WHERE @{item().WaterMark_Column} >= DATEADD(day, -9, '@{activity('Lookup to get watermark value').output.firstRow.watermark_value}')",
-										"type": "Expression"
-									},
 									"writeBehavior": "upsert",
 									"upsertSettings": {
 										"useTempDB": true,
