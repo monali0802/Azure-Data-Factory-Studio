@@ -15,7 +15,7 @@
 						"referenceName": "pl_aa_api_to_adls",
 						"type": "PipelineReference"
 					},
-					"waitOnCompletion": false
+					"waitOnCompletion": true
 				}
 			},
 			{
@@ -31,7 +31,7 @@
 						"referenceName": "pl_aa_adls_to_adls",
 						"type": "PipelineReference"
 					},
-					"waitOnCompletion": false
+					"waitOnCompletion": true
 				}
 			},
 			{
@@ -124,18 +124,6 @@
 					},
 					{
 						"activity": "Execute Pipeline for oracle source to target",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					},
-					{
-						"activity": "Execute Pipeline for adls to adls",
-						"dependencyConditions": [
-							"Succeeded"
-						]
-					},
-					{
-						"activity": "Execute Pipeline for api to adls",
 						"dependencyConditions": [
 							"Succeeded"
 						]
