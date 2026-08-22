@@ -19,7 +19,9 @@
 						"referenceName": "ds_aa_get_metadata_to_check_bronze",
 						"type": "DatasetReference"
 					},
-					"fieldList": [],
+					"fieldList": [
+						"childItems"
+					],
 					"storeSettings": {
 						"type": "AzureBlobFSReadSettings",
 						"recursive": true,
@@ -100,12 +102,12 @@
 							"userProperties": [],
 							"typeProperties": {
 								"expression": {
-									"value": "@greater(activity('Get Metadata to get largest file').output.size,variables('filesize'))",
+									"value": "@greater(activity('Get Metadata to get largest file sql').output.size,variables('filesizesql'))",
 									"type": "Expression"
 								},
 								"ifTrueActivities": [
 									{
-										"name": "Set variable for filesize",
+										"name": "Set variable for filesize sql",
 										"type": "SetVariable",
 										"dependsOn": [],
 										"policy": {
@@ -114,19 +116,19 @@
 										},
 										"userProperties": [],
 										"typeProperties": {
-											"variableName": "filesize",
+											"variableName": "filesizesql",
 											"value": {
-												"value": "@activity('Get Metadata to get largest file').output.size",
+												"value": "@activity('Get Metadata to get largest file sql').output.size",
 												"type": "Expression"
 											}
 										}
 									},
 									{
-										"name": "Set variable for filename",
+										"name": "Set variable for filename sql",
 										"type": "SetVariable",
 										"dependsOn": [
 											{
-												"activity": "Set variable for filesize",
+												"activity": "Set variable for filesize sql",
 												"dependencyConditions": [
 													"Succeeded"
 												]
@@ -138,9 +140,9 @@
 										},
 										"userProperties": [],
 										"typeProperties": {
-											"variableName": "filename",
+											"variableName": "filenamesql",
 											"value": {
-												"value": "@activity('Get Metadata to get largest file').output.itemName",
+												"value": "@activity('Get Metadata to get largest file sql').output.itemName",
 												"type": "Expression"
 											}
 										}
@@ -209,7 +211,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"filename": {
-								"value": "@variables('filename')",
+								"value": "@variables('filenamesql')",
 								"type": "Expression"
 							}
 						}
@@ -463,10 +465,17 @@
 		],
 		"variables": {
 			"filesize": {
-				"type": "String",
-				"defaultValue": "0"
+				"type": "Integer",
+				"defaultValue": 0
 			},
 			"filename": {
+				"type": "String"
+			},
+			"filesizesql": {
+				"type": "Integer",
+				"defaultValue": 0
+			},
+			"filenamesql": {
 				"type": "String"
 			}
 		},
