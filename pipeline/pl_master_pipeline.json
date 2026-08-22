@@ -66,7 +66,7 @@
 					"waitOnCompletion": true,
 					"parameters": {
 						"TableList": {
-							"value": "@pipeline().parameters.TableListOracle",
+							"value": "@pipeline().parameters.TableListOracleDb",
 							"type": "Expression"
 						},
 						"schemaname": {
@@ -224,7 +224,7 @@
 			}
 		],
 		"parameters": {
-			"TableListOracle": {
+			"TableListOracleDb": {
 				"type": "array",
 				"defaultValue": [
 					"CE_ACCT_HISTORY",
