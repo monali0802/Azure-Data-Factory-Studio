@@ -14,8 +14,8 @@
 						"CE_ACCT_HISTORY",
 						"CE_BANK_ACCOUNTS"
 					],
-					"schemaname_oracle": "@pipeline().parameters.schemaname_oracle",
-					"schemaname": "@pipeline().parameters.schemaname",
+					"schemaname_oracle": "dbo",
+					"schemaname": "dbo",
 					"tablelistsap": [
 						{
 							"TableName": "mara",
@@ -43,10 +43,10 @@
 							]
 						}
 					],
-					"watermarktablename": "@pipeline().parameters.watermarktablename",
+					"watermarktablename": "watermarktable",
 					"initial_lookback_days": 9,
-					"glaccount_ccode": "@pipeline().parameters.glaccount_ccode",
-					"watermarkcoulmnname": "@pipeline().parameters.watermarkcoulmnname",
+					"glaccount_ccode": "glaccount_ccode",
+					"watermarkcoulmnname": "last_updated",
 					"tablelistoracle": [
 						{
 							"TableName": "CE_ACCT_HISTORY",
