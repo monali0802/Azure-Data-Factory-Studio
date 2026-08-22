@@ -47,7 +47,24 @@
 					"initial_lookback_days": 9,
 					"glaccount_ccode": "@pipeline().parameters.glaccount_ccode",
 					"watermarkcoulmnname": "@pipeline().parameters.watermarkcoulmnname",
-					"tablelistoracle": "@pipeline().parameters.TableListOracleDb"
+					"tablelistoracle": [
+						{
+							"TableName": "CE_ACCT_HISTORY",
+							"TableSchemaName": "dbo",
+							"WaterMark_Column": "LAST_UPDATED",
+							"Keys": [
+								"ACCOUNT_HISTORY_ID"
+							]
+						},
+						{
+							"TableName": "CE_BANK_ACCOUNTS",
+							"TableSchemaName": "dbo",
+							"WaterMark_Column": "LAST_UPDATED",
+							"Keys": [
+								"BANK_ACCOUNT_ID"
+							]
+						}
+					]
 				}
 			}
 		],
