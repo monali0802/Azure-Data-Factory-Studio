@@ -1624,7 +1624,7 @@
 								"TableSchemaName": "dbo",
 								"WaterMark_Column": "LAST_UPDATED",
 								"Keys": [
-									"ACCT_HISTORY_ID"
+									"ACCOUNT_HISTORY_ID"
 								]
 							},
 							{

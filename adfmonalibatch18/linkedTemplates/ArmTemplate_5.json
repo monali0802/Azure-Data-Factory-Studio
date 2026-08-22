@@ -728,7 +728,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"items": {
-								"value": "@activity('Filter with sql word contains').output",
+								"value": "@activity('Filter with sql word contains').output.value",
 								"type": "Expression"
 							},
 							"isSequential": true,
@@ -921,7 +921,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"items": {
-								"value": "@activity('Filter without sql word contains').output",
+								"value": "@activity('Filter without sql word contains').output.value",
 								"type": "Expression"
 							},
 							"isSequential": true,
@@ -1371,10 +1371,6 @@
 										},
 										"sink": {
 											"type": "AzureSqlSink",
-											"preCopyScript": {
-												"value": "DELETE FROM @{item().TableName} WHERE @{item().WaterMark_Column} >= DATEADD(day, -9, '@{activity('Lookup to get watermark value').output.firstRow.watermark_value}')",
-												"type": "Expression"
-											},
 											"writeBehavior": "upsert",
 											"upsertSettings": {
 												"useTempDB": true,
@@ -1480,7 +1476,7 @@
 								"TableSchemaName": "dbo",
 								"WaterMark_Column": "LAST_UPDATED",
 								"Keys": [
-									"ACCT_HISTORY_ID"
+									"ACCOUNT_HISTORY_ID"
 								]
 							},
 							{
@@ -1714,10 +1710,6 @@
 										},
 										"sink": {
 											"type": "AzureSqlSink",
-											"preCopyScript": {
-												"value": "DELETE FROM @{item().TableName} WHERE @{item().WaterMark_Column} >= DATEADD(day, -9, '@{activity('Lookup to get watermark value').output.firstRow.watermark_value}')\n",
-												"type": "Expression"
-											},
 											"writeBehavior": "upsert",
 											"upsertSettings": {
 												"useTempDB": true,
