@@ -1363,7 +1363,7 @@
 										"source": {
 											"type": "AzureSqlSource",
 											"sqlReaderQuery": {
-												"value": "SELECT * FROM @{item().TableSchemaName}.@{item().TableName} WHERE @{item().WaterMark_Column} <= '@{formatDateTime(activity('Lookup to get latest data').output.firstRow.NewWatermarkValue, 'yyyy-MM-ddTHH:mm:ss')}' AND @{item().WaterMark_Column} > '@{formatDateTime(addDays(activity('Lookup to get watermark value').output.firstRow.watermark_value, -9), 'yyyy-MM-ddTHH:mm:ss')}'",
+												"value": "SELECT * FROM @{item().TableSchemaName}.@{item().TableName} WHERE @{item().WaterMark_Column} >= '@{formatDateTime(if(equals(activity('Lookup to get watermark value').output.firstRow.watermark_value, null), addDays(utcNow(), sub(0, pipeline().parameters.initial_lookback_days)), activity('Lookup to get watermark value').output.firstRow.watermark_value), 'yyyy-MM-ddTHH:mm:ss')}' AND @{item().WaterMark_Column} <= '@{formatDateTime(activity('Lookup to get latest data').output.firstRow.NewWatermarkValue, 'yyyy-MM-ddTHH:mm:ss')}'",
 												"type": "Expression"
 											},
 											"queryTimeout": "02:00:00",
@@ -1702,7 +1702,7 @@
 										"source": {
 											"type": "AzureSqlSource",
 											"sqlReaderQuery": {
-												"value": "SELECT * FROM @{item().TableSchemaName}.@{item().TableName} WHERE @{item().WaterMark_Column} <= '@{formatDateTime(activity('Lookup to get latest data').output.firstRow.NewWatermarkValue, 'yyyy-MM-ddTHH:mm:ss')}' AND @{item().WaterMark_Column} > '@{formatDateTime(addDays(activity('Lookup to get watermark value').output.firstRow.watermark_value, -9), 'yyyy-MM-ddTHH:mm:ss')}'",
+												"value": "SELECT * FROM @{item().TableSchemaName}.@{item().TableName} WHERE @{item().WaterMark_Column} >= '@{formatDateTime(if(equals(activity('Lookup to get watermark value').output.firstRow.watermark_value, null), addDays(utcNow(), sub(0, pipeline().parameters.initial_lookback_days)), activity('Lookup to get watermark value').output.firstRow.watermark_value), 'yyyy-MM-ddTHH:mm:ss')}' AND @{item().WaterMark_Column} <= '@{formatDateTime(activity('Lookup to get latest data').output.firstRow.NewWatermarkValue, 'yyyy-MM-ddTHH:mm:ss')}'",
 												"type": "Expression"
 											},
 											"queryTimeout": "02:00:00",

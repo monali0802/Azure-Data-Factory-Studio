@@ -99,14 +99,6 @@
 			"type": "string",
 			"defaultValue": "monaligothi1303"
 		},
-		"trumbling_properties_pipeline_parameters_startdate": {
-			"type": "string",
-			"defaultValue": "@trigger.outputs.windowStartTime"
-		},
-		"trumbling_properties_pipeline_parameters_enddate": {
-			"type": "string",
-			"defaultValue": "@trigger.outputs.windowEndTime"
-		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_TableListOracleDb": {
 			"type": "array",
 			"defaultValue": [
@@ -188,6 +180,14 @@
 					]
 				}
 			]
+		},
+		"trumbling_properties_pipeline_parameters_startdate": {
+			"type": "string",
+			"defaultValue": "@trigger.outputs.windowStartTime"
+		},
+		"trumbling_properties_pipeline_parameters_enddate": {
+			"type": "string",
+			"defaultValue": "@trigger.outputs.windowEndTime"
 		}
 	},
 	"variables": {
@@ -1338,7 +1338,7 @@
 										"source": {
 											"type": "AzureSqlSource",
 											"sqlReaderQuery": {
-												"value": "SELECT * FROM @{item().TableSchemaName}.@{item().TableName} WHERE @{item().WaterMark_Column} <= '@{formatDateTime(activity('Lookup to get latest data').output.firstRow.NewWatermarkValue, 'yyyy-MM-ddTHH:mm:ss')}' AND @{item().WaterMark_Column} > '@{formatDateTime(addDays(activity('Lookup to get watermark value').output.firstRow.watermark_value, -9), 'yyyy-MM-ddTHH:mm:ss')}'",
+												"value": "SELECT * FROM @{item().TableSchemaName}.@{item().TableName} WHERE @{item().WaterMark_Column} >= '@{formatDateTime(if(equals(activity('Lookup to get watermark value').output.firstRow.watermark_value, null), addDays(utcNow(), sub(0, pipeline().parameters.initial_lookback_days)), activity('Lookup to get watermark value').output.firstRow.watermark_value), 'yyyy-MM-ddTHH:mm:ss')}' AND @{item().WaterMark_Column} <= '@{formatDateTime(activity('Lookup to get latest data').output.firstRow.NewWatermarkValue, 'yyyy-MM-ddTHH:mm:ss')}'",
 												"type": "Expression"
 											},
 											"queryTimeout": "02:00:00",
@@ -1798,7 +1798,7 @@
 										"source": {
 											"type": "AzureSqlSource",
 											"sqlReaderQuery": {
-												"value": "SELECT * FROM @{item().TableSchemaName}.@{item().TableName} WHERE @{item().WaterMark_Column} <= '@{formatDateTime(activity('Lookup to get latest data').output.firstRow.NewWatermarkValue, 'yyyy-MM-ddTHH:mm:ss')}' AND @{item().WaterMark_Column} > '@{formatDateTime(addDays(activity('Lookup to get watermark value').output.firstRow.watermark_value, -9), 'yyyy-MM-ddTHH:mm:ss')}'",
+												"value": "SELECT * FROM @{item().TableSchemaName}.@{item().TableName} WHERE @{item().WaterMark_Column} >= '@{formatDateTime(if(equals(activity('Lookup to get watermark value').output.firstRow.watermark_value, null), addDays(utcNow(), sub(0, pipeline().parameters.initial_lookback_days)), activity('Lookup to get watermark value').output.firstRow.watermark_value), 'yyyy-MM-ddTHH:mm:ss')}' AND @{item().WaterMark_Column} <= '@{formatDateTime(activity('Lookup to get latest data').output.firstRow.NewWatermarkValue, 'yyyy-MM-ddTHH:mm:ss')}'",
 												"type": "Expression"
 											},
 											"queryTimeout": "02:00:00",
@@ -10317,51 +10317,6 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/trumbling')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Stopped",
-				"pipeline": {
-					"pipelineReference": {
-						"referenceName": "pl_trumbling",
-						"type": "PipelineReference"
-					},
-					"parameters": {
-						"startdate": "[parameters('trumbling_properties_pipeline_parameters_startdate')]",
-						"enddate": "[parameters('trumbling_properties_pipeline_parameters_enddate')]"
-					}
-				},
-				"type": "TumblingWindowTrigger",
-				"typeProperties": {
-					"frequency": "Hour",
-					"interval": 24,
-					"startTime": "2026-08-21T18:42:00Z",
-					"endTime": "2026-08-22T18:42:00Z",
-					"delay": "00:00:00",
-					"maxConcurrency": 50,
-					"retryPolicy": {
-						"intervalInSeconds": 30
-					},
-					"dependsOn": []
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/pl_trumbling')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Orcletable')]",
-			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "SelfHosted",
-				"typeProperties": {}
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/delta_load_trigger')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
@@ -10409,6 +10364,51 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/pl_master_pipeline')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/trumbling')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipeline": {
+					"pipelineReference": {
+						"referenceName": "pl_trumbling",
+						"type": "PipelineReference"
+					},
+					"parameters": {
+						"startdate": "[parameters('trumbling_properties_pipeline_parameters_startdate')]",
+						"enddate": "[parameters('trumbling_properties_pipeline_parameters_enddate')]"
+					}
+				},
+				"type": "TumblingWindowTrigger",
+				"typeProperties": {
+					"frequency": "Hour",
+					"interval": 24,
+					"startTime": "2026-08-21T18:42:00Z",
+					"endTime": "2026-08-22T18:42:00Z",
+					"delay": "00:00:00",
+					"maxConcurrency": 50,
+					"retryPolicy": {
+						"intervalInSeconds": 30
+					},
+					"dependsOn": []
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/pl_trumbling')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Orcletable')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"typeProperties": {}
+			},
+			"dependsOn": []
 		}
 	]
 }
