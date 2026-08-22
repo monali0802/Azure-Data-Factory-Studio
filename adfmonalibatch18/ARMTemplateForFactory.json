@@ -2173,7 +2173,12 @@
 										{
 											"referenceName": "ds_aa_target_copy_target_sql_to_bronze",
 											"type": "DatasetReference",
-											"parameters": {}
+											"parameters": {
+												"filename": {
+													"value": "@item().TABLE_NAME",
+													"type": "Expression"
+												}
+											}
 										}
 									]
 								}
@@ -7175,11 +7180,20 @@
 					"referenceName": "ls_aa_one_hub_project_adls",
 					"type": "LinkedServiceReference"
 				},
+				"parameters": {
+					"filename": {
+						"type": "string"
+					}
+				},
 				"annotations": [],
 				"type": "DelimitedText",
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@concat('sql_', dataset().filename, '.csv')",
+							"type": "Expression"
+						},
 						"fileSystem": "bronze"
 					},
 					"columnDelimiter": ",",

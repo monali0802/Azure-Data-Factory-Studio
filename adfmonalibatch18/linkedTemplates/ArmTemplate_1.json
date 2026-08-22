@@ -424,11 +424,20 @@
 					"referenceName": "ls_aa_one_hub_project_adls",
 					"type": "LinkedServiceReference"
 				},
+				"parameters": {
+					"filename": {
+						"type": "string"
+					}
+				},
 				"annotations": [],
 				"type": "DelimitedText",
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
+						"fileName": {
+							"value": "@concat('sql_', dataset().filename, '.csv')",
+							"type": "Expression"
+						},
 						"fileSystem": "bronze"
 					},
 					"columnDelimiter": ",",
