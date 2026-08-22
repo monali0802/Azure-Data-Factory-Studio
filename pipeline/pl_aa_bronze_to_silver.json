@@ -46,7 +46,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('Filter with sql word contains').output",
+						"value": "@activity('Filter with sql word contains').output.value",
 						"type": "Expression"
 					},
 					"isSequential": true,
@@ -238,7 +238,7 @@
 				"userProperties": [],
 				"typeProperties": {
 					"items": {
-						"value": "@activity('Filter without sql word contains').output",
+						"value": "@activity('Filter without sql word contains').output.value",
 						"type": "Expression"
 					},
 					"isSequential": true,
