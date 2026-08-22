@@ -36,46 +36,6 @@
 			},
 			{
 				"pipelineReference": {
-					"referenceName": "pl_aa_sap_source_to_target_sql",
-					"type": "PipelineReference"
-				},
-				"parameters": {
-					"tablelist": [
-						{
-							"TableName": "mara",
-							"TableSchemaName": "dbo",
-							"WaterMark_Column": "last_updated",
-							"Keys": [
-								"matnr"
-							]
-						},
-						{
-							"TableName": "vbap",
-							"TableSchemaName": "dbo",
-							"WaterMark_Column": "last_updated",
-							"Keys": [
-								"vbeln",
-								"posnr"
-							]
-						},
-						{
-							"TableName": "vbrk",
-							"TableSchemaName": "dbo",
-							"WaterMark_Column": "last_updated",
-							"Keys": [
-								"vbeln"
-							]
-						}
-					],
-					"schemaname": "@pipeline().parameters.schemaname",
-					"watermarktablename": "@pipeline().parameters.watermarktablename",
-					"initial_lookback_days": 9,
-					"glaccount_ccode": "@pipeline().parameters.glaccount_ccode",
-					"watermarkcoulmnname": "@pipeline().parameters.watermarkcoulmnname"
-				}
-			},
-			{
-				"pipelineReference": {
 					"referenceName": "pl_aa_target_sql_to_bronze",
 					"type": "PipelineReference"
 				}
