@@ -99,6 +99,14 @@
 			"type": "string",
 			"defaultValue": "monaligothi1303"
 		},
+		"trumbling_properties_pipeline_parameters_startdate": {
+			"type": "string",
+			"defaultValue": "@trigger.outputs.windowStartTime"
+		},
+		"trumbling_properties_pipeline_parameters_enddate": {
+			"type": "string",
+			"defaultValue": "@trigger.outputs.windowEndTime"
+		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_TableListOracleDb": {
 			"type": "array",
 			"defaultValue": [
@@ -108,11 +116,11 @@
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_schemaname_oracle": {
 			"type": "string",
-			"defaultValue": "@pipeline().parameters.schemaname_oracle"
+			"defaultValue": "dbo"
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_schemaname": {
 			"type": "string",
-			"defaultValue": "@pipeline().parameters.schemaname"
+			"defaultValue": "dbo"
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_tablelistsap": {
 			"type": "array",
@@ -146,7 +154,7 @@
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_watermarktablename": {
 			"type": "string",
-			"defaultValue": "@pipeline().parameters.watermarktablename"
+			"defaultValue": "watermarktable"
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_initial_lookback_days": {
 			"type": "int",
@@ -154,11 +162,11 @@
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_glaccount_ccode": {
 			"type": "string",
-			"defaultValue": "@pipeline().parameters.glaccount_ccode"
+			"defaultValue": "glaccount_ccode"
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_watermarkcoulmnname": {
 			"type": "string",
-			"defaultValue": "@pipeline().parameters.watermarkcoulmnname"
+			"defaultValue": "last_updated"
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_tablelistoracle": {
 			"type": "array",
@@ -180,14 +188,6 @@
 					]
 				}
 			]
-		},
-		"trumbling_properties_pipeline_parameters_startdate": {
-			"type": "string",
-			"defaultValue": "@trigger.outputs.windowStartTime"
-		},
-		"trumbling_properties_pipeline_parameters_enddate": {
-			"type": "string",
-			"defaultValue": "@trigger.outputs.windowEndTime"
 		},
 		"containerUri": {
 			"type": "string",

@@ -74,6 +74,12 @@
 		"ls_source_db_monali_batch18_properties_typeProperties_userName": {
 			"value": "monaligothi1303"
 		},
+		"trumbling_properties_pipeline_parameters_startdate": {
+			"value": "@trigger.outputs.windowStartTime"
+		},
+		"trumbling_properties_pipeline_parameters_enddate": {
+			"value": "@trigger.outputs.windowEndTime"
+		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_TableListOracleDb": {
 			"value": [
 				"CE_ACCT_HISTORY",
@@ -81,10 +87,10 @@
 			]
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_schemaname_oracle": {
-			"value": "@pipeline().parameters.schemaname_oracle"
+			"value": "dbo"
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_schemaname": {
-			"value": "@pipeline().parameters.schemaname"
+			"value": "dbo"
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_tablelistsap": {
 			"value": [
@@ -116,16 +122,16 @@
 			]
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_watermarktablename": {
-			"value": "@pipeline().parameters.watermarktablename"
+			"value": "watermarktable"
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_initial_lookback_days": {
 			"value": 9
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_glaccount_ccode": {
-			"value": "@pipeline().parameters.glaccount_ccode"
+			"value": "glaccount_ccode"
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_watermarkcoulmnname": {
-			"value": "@pipeline().parameters.watermarkcoulmnname"
+			"value": "last_updated"
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_tablelistoracle": {
 			"value": [
@@ -146,12 +152,6 @@
 					]
 				}
 			]
-		},
-		"trumbling_properties_pipeline_parameters_startdate": {
-			"value": "@trigger.outputs.windowStartTime"
-		},
-		"trumbling_properties_pipeline_parameters_enddate": {
-			"value": "@trigger.outputs.windowEndTime"
 		},
 		"containerUri": {
 			"value": ""

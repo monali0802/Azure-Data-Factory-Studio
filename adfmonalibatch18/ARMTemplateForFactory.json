@@ -99,6 +99,14 @@
 			"type": "string",
 			"defaultValue": "monaligothi1303"
 		},
+		"trumbling_properties_pipeline_parameters_startdate": {
+			"type": "string",
+			"defaultValue": "@trigger.outputs.windowStartTime"
+		},
+		"trumbling_properties_pipeline_parameters_enddate": {
+			"type": "string",
+			"defaultValue": "@trigger.outputs.windowEndTime"
+		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_TableListOracleDb": {
 			"type": "array",
 			"defaultValue": [
@@ -108,11 +116,11 @@
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_schemaname_oracle": {
 			"type": "string",
-			"defaultValue": "@pipeline().parameters.schemaname_oracle"
+			"defaultValue": "dbo"
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_schemaname": {
 			"type": "string",
-			"defaultValue": "@pipeline().parameters.schemaname"
+			"defaultValue": "dbo"
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_tablelistsap": {
 			"type": "array",
@@ -146,7 +154,7 @@
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_watermarktablename": {
 			"type": "string",
-			"defaultValue": "@pipeline().parameters.watermarktablename"
+			"defaultValue": "watermarktable"
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_initial_lookback_days": {
 			"type": "int",
@@ -154,11 +162,11 @@
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_glaccount_ccode": {
 			"type": "string",
-			"defaultValue": "@pipeline().parameters.glaccount_ccode"
+			"defaultValue": "glaccount_ccode"
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_watermarkcoulmnname": {
 			"type": "string",
-			"defaultValue": "@pipeline().parameters.watermarkcoulmnname"
+			"defaultValue": "last_updated"
 		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_tablelistoracle": {
 			"type": "array",
@@ -180,14 +188,6 @@
 					]
 				}
 			]
-		},
-		"trumbling_properties_pipeline_parameters_startdate": {
-			"type": "string",
-			"defaultValue": "@trigger.outputs.windowStartTime"
-		},
-		"trumbling_properties_pipeline_parameters_enddate": {
-			"type": "string",
-			"defaultValue": "@trigger.outputs.windowEndTime"
 		}
 	},
 	"variables": {
@@ -10317,6 +10317,51 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('factoryName'), '/trumbling')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipeline": {
+					"pipelineReference": {
+						"referenceName": "pl_trumbling",
+						"type": "PipelineReference"
+					},
+					"parameters": {
+						"startdate": "[parameters('trumbling_properties_pipeline_parameters_startdate')]",
+						"enddate": "[parameters('trumbling_properties_pipeline_parameters_enddate')]"
+					}
+				},
+				"type": "TumblingWindowTrigger",
+				"typeProperties": {
+					"frequency": "Hour",
+					"interval": 24,
+					"startTime": "2026-08-21T18:42:00Z",
+					"endTime": "2026-08-22T18:42:00Z",
+					"delay": "00:00:00",
+					"maxConcurrency": 50,
+					"retryPolicy": {
+						"intervalInSeconds": 30
+					},
+					"dependsOn": []
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/pl_trumbling')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Orcletable')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('factoryName'), '/delta_load_trigger')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
@@ -10364,51 +10409,6 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/pl_master_pipeline')]"
 			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/trumbling')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Stopped",
-				"pipeline": {
-					"pipelineReference": {
-						"referenceName": "pl_trumbling",
-						"type": "PipelineReference"
-					},
-					"parameters": {
-						"startdate": "[parameters('trumbling_properties_pipeline_parameters_startdate')]",
-						"enddate": "[parameters('trumbling_properties_pipeline_parameters_enddate')]"
-					}
-				},
-				"type": "TumblingWindowTrigger",
-				"typeProperties": {
-					"frequency": "Hour",
-					"interval": 24,
-					"startTime": "2026-08-21T18:42:00Z",
-					"endTime": "2026-08-22T18:42:00Z",
-					"delay": "00:00:00",
-					"maxConcurrency": 50,
-					"retryPolicy": {
-						"intervalInSeconds": 30
-					},
-					"dependsOn": []
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/pl_trumbling')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Orcletable')]",
-			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "SelfHosted",
-				"typeProperties": {}
-			},
-			"dependsOn": []
 		}
 	]
 }
