@@ -10,42 +10,15 @@
 					"type": "PipelineReference"
 				},
 				"parameters": {
-					"TableListOracleDb": {
-						"value": "@pipeline().parameters.TableListOracleDb",
-						"type": "Expression"
-					},
-					"schemaname_oracle": {
-						"value": "@pipeline().parameters.schemaname_oracle",
-						"type": "Expression"
-					},
-					"schemaname": {
-						"value": "@pipeline().parameters.schemaname",
-						"type": "Expression"
-					},
-					"tablelistsap": {
-						"value": "@pipeline().parameters.tablelistsap",
-						"type": "Expression"
-					},
-					"watermarktablename": {
-						"value": "@pipeline().parameters.watermarktablename",
-						"type": "Expression"
-					},
-					"initial_lookback_days": {
-						"value": "@pipeline().parameters.initial_lookback_days",
-						"type": "Expression"
-					},
-					"glaccount_ccode": {
-						"value": "@pipeline().parameters.glaccount_ccode",
-						"type": "Expression"
-					},
-					"watermarkcoulmnname": {
-						"value": "@pipeline().parameters.watermarkcoulmnname",
-						"type": "Expression"
-					},
-					"tablelistoracle": {
-						"value": "@pipeline().parameters.tablelistoracle",
-						"type": "Expression"
-					}
+					"TableListOracleDb": "@pipeline().parameters.TableListOracleDb",
+					"schemaname_oracle": "@pipeline().parameters.schemaname_oracle",
+					"schemaname": "@pipeline().parameters.schemaname",
+					"tablelistsap": "@pipeline().parameters.TableListOracleDb",
+					"watermarktablename": "@pipeline().parameters.watermarktablename",
+					"initial_lookback_days": 9,
+					"glaccount_ccode": "@pipeline().parameters.glaccount_ccode",
+					"watermarkcoulmnname": "@pipeline().parameters.watermarkcoulmnname",
+					"tablelistoracle": "@pipeline().parameters.TableListOracleDb"
 				}
 			}
 		],
