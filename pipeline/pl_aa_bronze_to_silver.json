@@ -225,6 +225,198 @@
 				]
 			},
 			{
+				"name": "ForEach to get largest file",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "Filter without sql word contains",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Filter without sql word contains').output",
+						"type": "Expression"
+					},
+					"isSequential": true,
+					"activities": [
+						{
+							"name": "Get Metadata to get largest file",
+							"type": "GetMetadata",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"dataset": {
+									"referenceName": "ds_aa_getmeta_to_get_largest_file",
+									"type": "DatasetReference",
+									"parameters": {
+										"filename": {
+											"value": "@item().name",
+											"type": "Expression"
+										}
+									}
+								},
+								"fieldList": [
+									"size",
+									"itemName"
+								],
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							}
+						},
+						{
+							"name": "If Condition to check largest file",
+							"type": "IfCondition",
+							"dependsOn": [
+								{
+									"activity": "Get Metadata to get largest file",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"userProperties": [],
+							"typeProperties": {
+								"expression": {
+									"value": "@greater(activity('Get Metadata to get largest file').output.size,variables('filesize'))",
+									"type": "Expression"
+								},
+								"ifTrueActivities": [
+									{
+										"name": "Set variable for filesize_copy1",
+										"type": "SetVariable",
+										"dependsOn": [],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "filesize",
+											"value": {
+												"value": "@activity('Get Metadata to get largest file').output.size",
+												"type": "Expression"
+											}
+										}
+									},
+									{
+										"name": "Set variable for filename_copy1",
+										"type": "SetVariable",
+										"dependsOn": [
+											{
+												"activity": "Set variable for filesize_copy1",
+												"dependencyConditions": [
+													"Succeeded"
+												]
+											}
+										],
+										"policy": {
+											"secureOutput": false,
+											"secureInput": false
+										},
+										"userProperties": [],
+										"typeProperties": {
+											"variableName": "filename",
+											"value": {
+												"value": "@activity('Get Metadata to get largest file').output.itemName",
+												"type": "Expression"
+											}
+										}
+									}
+								]
+							}
+						}
+					]
+				}
+			},
+			{
+				"name": "Copy data largest file",
+				"type": "Copy",
+				"dependsOn": [
+					{
+						"activity": "ForEach to get largest file",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "AzureBlobFSReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "DelimitedTextSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "DelimitedTextWriteSettings",
+							"quoteAllText": true,
+							"fileExtension": ".txt"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "ds_aa_source_copy_largest_file",
+						"type": "DatasetReference",
+						"parameters": {
+							"filename": {
+								"value": "@variables('filename')",
+								"type": "Expression"
+							}
+						}
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "ds_aa_target_copy_largest_file",
+						"type": "DatasetReference"
+					}
+				]
+			},
+			{
 				"name": "Filter with sql word contains",
 				"type": "Filter",
 				"dependsOn": [
@@ -243,6 +435,29 @@
 					},
 					"condition": {
 						"value": "@startswith(toLower(item().name),'sql_')",
+						"type": "Expression"
+					}
+				}
+			},
+			{
+				"name": "Filter without sql word contains",
+				"type": "Filter",
+				"dependsOn": [
+					{
+						"activity": "Get Metadata to file list",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('Get Metadata to file list').output.childItems",
+						"type": "Expression"
+					},
+					"condition": {
+						"value": "@not(startswith(toLower(item().name),'sql_'))",
 						"type": "Expression"
 					}
 				}
@@ -267,6 +482,8 @@
 		"folder": {
 			"name": "Onehub lake"
 		},
-		"annotations": []
-	}
+		"annotations": [],
+		"lastPublishTime": "2026-08-22T06:08:21Z"
+	},
+	"type": "Microsoft.DataFactory/factories/pipelines"
 }
