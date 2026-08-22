@@ -63,7 +63,17 @@
 						"referenceName": "pl_aa_oracle_to_source_sql",
 						"type": "PipelineReference"
 					},
-					"waitOnCompletion": true
+					"waitOnCompletion": true,
+					"parameters": {
+						"TableList": {
+							"value": "@pipeline().parameters.TableListOracle",
+							"type": "Expression"
+						},
+						"schemaname": {
+							"value": "@pipeline().parameters.schemaname_oracle",
+							"type": "Expression"
+						}
+					}
 				}
 			},
 			{
@@ -86,7 +96,33 @@
 						"referenceName": "pl_aa_sap_source_to_target_sql",
 						"type": "PipelineReference"
 					},
-					"waitOnCompletion": true
+					"waitOnCompletion": true,
+					"parameters": {
+						"tablelist": {
+							"value": "@pipeline().parameters.tablelistsap",
+							"type": "Expression"
+						},
+						"schemaname": {
+							"value": "@pipeline().parameters.schemaname",
+							"type": "Expression"
+						},
+						"watermarktablename": {
+							"value": "@pipeline().parameters.watermarktablename",
+							"type": "Expression"
+						},
+						"initial_lookback_days": {
+							"value": "@pipeline().parameters.initial_lookback_days",
+							"type": "Expression"
+						},
+						"glaccount_ccode": {
+							"value": "@pipeline().parameters.glaccount_ccode",
+							"type": "Expression"
+						},
+						"watermarkcoulmnname": {
+							"value": "@pipeline().parameters.watermarkcoulmnname",
+							"type": "Expression"
+						}
+					}
 				}
 			},
 			{
@@ -109,7 +145,29 @@
 						"referenceName": "pl_aa_oracle_source_to_target_sql",
 						"type": "PipelineReference"
 					},
-					"waitOnCompletion": true
+					"waitOnCompletion": true,
+					"parameters": {
+						"tablelist": {
+							"value": "@pipeline().parameters.tablelistoracle",
+							"type": "Expression"
+						},
+						"schemaname": {
+							"value": "@pipeline().parameters.schemaname",
+							"type": "Expression"
+						},
+						"watermarktablename": {
+							"value": "@pipeline().parameters.watermarktablename",
+							"type": "Expression"
+						},
+						"initial_lookback_days": {
+							"value": "@pipeline().parameters.initial_lookback_days",
+							"type": "Expression"
+						},
+						"watermarkcoulmnname": {
+							"value": "@pipeline().parameters.watermarkcoulmnname",
+							"type": "Expression"
+						}
+					}
 				}
 			},
 			{
@@ -165,6 +223,90 @@
 				}
 			}
 		],
+		"parameters": {
+			"TableListOracle": {
+				"type": "array",
+				"defaultValue": [
+					"CE_ACCT_HISTORY",
+					"CE_BANK_ACCOUNTS"
+				]
+			},
+			"schemaname_oracle": {
+				"type": "string",
+				"defaultValue": "ADMIN"
+			},
+			"schemaname": {
+				"type": "string",
+				"defaultValue": "dbo"
+			},
+			"tablelistsap": {
+				"type": "array",
+				"defaultValue": [
+					{
+						"TableName": "mara",
+						"TableSchemaName": "dbo",
+						"WaterMark_Column": "last_updated",
+						"Keys": [
+							"matnr"
+						]
+					},
+					{
+						"TableName": "vbap",
+						"TableSchemaName": "dbo",
+						"WaterMark_Column": "last_updated",
+						"Keys": [
+							"vbeln",
+							"posnr"
+						]
+					},
+					{
+						"TableName": "vbrk",
+						"TableSchemaName": "dbo",
+						"WaterMark_Column": "last_updated",
+						"Keys": [
+							"vbeln"
+						]
+					}
+				]
+			},
+			"watermarktablename": {
+				"type": "string",
+				"defaultValue": "watermarktable"
+			},
+			"initial_lookback_days": {
+				"type": "int",
+				"defaultValue": 9
+			},
+			"glaccount_ccode": {
+				"type": "string",
+				"defaultValue": "glaccount_ccode"
+			},
+			"watermarkcoulmnname": {
+				"type": "string",
+				"defaultValue": "last_updated"
+			},
+			"tablelistoracle": {
+				"type": "array",
+				"defaultValue": [
+					{
+						"TableName": "CE_ACCT_HISTORY",
+						"TableSchemaName": "dbo",
+						"WaterMark_Column": "LAST_UPDATED",
+						"Keys": [
+							"ACCT_HISTORY_ID"
+						]
+					},
+					{
+						"TableName": "CE_BANK_ACCOUNTS",
+						"TableSchemaName": "dbo",
+						"WaterMark_Column": "LAST_UPDATED",
+						"Keys": [
+							"BANK_ACCOUNT_ID"
+						]
+					}
+				]
+			}
+		},
 		"folder": {
 			"name": "Onehub lake"
 		},
