@@ -299,7 +299,7 @@
 								},
 								"ifTrueActivities": [
 									{
-										"name": "Set variable for filesize_copy1",
+										"name": "Set variable for filesize 2",
 										"type": "SetVariable",
 										"dependsOn": [],
 										"policy": {
@@ -316,11 +316,11 @@
 										}
 									},
 									{
-										"name": "Set variable for filename_copy1",
+										"name": "Set variable for filename 2",
 										"type": "SetVariable",
 										"dependsOn": [
 											{
-												"activity": "Set variable for filesize_copy1",
+												"activity": "Set variable for filesize 2",
 												"dependencyConditions": [
 													"Succeeded"
 												]
