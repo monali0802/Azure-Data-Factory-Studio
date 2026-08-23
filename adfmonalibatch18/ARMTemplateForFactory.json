@@ -99,14 +99,6 @@
 			"type": "string",
 			"defaultValue": "monaligothi1303"
 		},
-		"trumbling_properties_pipeline_parameters_startdate": {
-			"type": "string",
-			"defaultValue": "@trigger.outputs.windowStartTime"
-		},
-		"trumbling_properties_pipeline_parameters_enddate": {
-			"type": "string",
-			"defaultValue": "@trigger.outputs.windowEndTime"
-		},
 		"delta_load_trigger_properties_pl_master_pipeline_parameters_TableListOracleDb": {
 			"type": "array",
 			"defaultValue": [
@@ -188,6 +180,14 @@
 					]
 				}
 			]
+		},
+		"trumbling_properties_pipeline_parameters_startdate": {
+			"type": "string",
+			"defaultValue": "@trigger.outputs.windowStartTime"
+		},
+		"trumbling_properties_pipeline_parameters_enddate": {
+			"type": "string",
+			"defaultValue": "@trigger.outputs.windowEndTime"
 		}
 	},
 	"variables": {
@@ -952,7 +952,7 @@
 										},
 										"ifTrueActivities": [
 											{
-												"name": "Set variable for filesize_copy1",
+												"name": "Set variable for filesize 2",
 												"type": "SetVariable",
 												"dependsOn": [],
 												"policy": {
@@ -969,11 +969,11 @@
 												}
 											},
 											{
-												"name": "Set variable for filename_copy1",
+												"name": "Set variable for filename 2",
 												"type": "SetVariable",
 												"dependsOn": [
 													{
-														"activity": "Set variable for filesize_copy1",
+														"activity": "Set variable for filesize 2",
 														"dependencyConditions": [
 															"Succeeded"
 														]
@@ -10317,51 +10317,6 @@
 			"dependsOn": []
 		},
 		{
-			"name": "[concat(parameters('factoryName'), '/trumbling')]",
-			"type": "Microsoft.DataFactory/factories/triggers",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"annotations": [],
-				"runtimeState": "Stopped",
-				"pipeline": {
-					"pipelineReference": {
-						"referenceName": "pl_trumbling",
-						"type": "PipelineReference"
-					},
-					"parameters": {
-						"startdate": "[parameters('trumbling_properties_pipeline_parameters_startdate')]",
-						"enddate": "[parameters('trumbling_properties_pipeline_parameters_enddate')]"
-					}
-				},
-				"type": "TumblingWindowTrigger",
-				"typeProperties": {
-					"frequency": "Hour",
-					"interval": 24,
-					"startTime": "2026-08-21T18:42:00Z",
-					"endTime": "2026-08-22T18:42:00Z",
-					"delay": "00:00:00",
-					"maxConcurrency": 50,
-					"retryPolicy": {
-						"intervalInSeconds": 30
-					},
-					"dependsOn": []
-				}
-			},
-			"dependsOn": [
-				"[concat(variables('factoryId'), '/pipelines/pl_trumbling')]"
-			]
-		},
-		{
-			"name": "[concat(parameters('factoryName'), '/Orcletable')]",
-			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
-			"apiVersion": "2018-06-01",
-			"properties": {
-				"type": "SelfHosted",
-				"typeProperties": {}
-			},
-			"dependsOn": []
-		},
-		{
 			"name": "[concat(parameters('factoryName'), '/delta_load_trigger')]",
 			"type": "Microsoft.DataFactory/factories/triggers",
 			"apiVersion": "2018-06-01",
@@ -10409,6 +10364,51 @@
 			"dependsOn": [
 				"[concat(variables('factoryId'), '/pipelines/pl_master_pipeline')]"
 			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/trumbling')]",
+			"type": "Microsoft.DataFactory/factories/triggers",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"annotations": [],
+				"runtimeState": "Stopped",
+				"pipeline": {
+					"pipelineReference": {
+						"referenceName": "pl_trumbling",
+						"type": "PipelineReference"
+					},
+					"parameters": {
+						"startdate": "[parameters('trumbling_properties_pipeline_parameters_startdate')]",
+						"enddate": "[parameters('trumbling_properties_pipeline_parameters_enddate')]"
+					}
+				},
+				"type": "TumblingWindowTrigger",
+				"typeProperties": {
+					"frequency": "Hour",
+					"interval": 24,
+					"startTime": "2026-08-21T18:42:00Z",
+					"endTime": "2026-08-22T18:42:00Z",
+					"delay": "00:00:00",
+					"maxConcurrency": 50,
+					"retryPolicy": {
+						"intervalInSeconds": 30
+					},
+					"dependsOn": []
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('factoryId'), '/pipelines/pl_trumbling')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('factoryName'), '/Orcletable')]",
+			"type": "Microsoft.DataFactory/factories/integrationRuntimes",
+			"apiVersion": "2018-06-01",
+			"properties": {
+				"type": "SelfHosted",
+				"typeProperties": {}
+			},
+			"dependsOn": []
 		}
 	]
 }
