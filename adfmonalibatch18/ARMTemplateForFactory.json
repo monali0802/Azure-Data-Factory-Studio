@@ -201,75 +201,6 @@
 			"properties": {
 				"activities": [
 					{
-						"name": "Copy data from adls to bronze adls",
-						"type": "Copy",
-						"dependsOn": [
-							{
-								"activity": "ForEach to filter largest file",
-								"dependencyConditions": [
-									"Succeeded"
-								]
-							}
-						],
-						"policy": {
-							"timeout": "0.12:00:00",
-							"retry": 0,
-							"retryIntervalInSeconds": 30,
-							"secureOutput": false,
-							"secureInput": false
-						},
-						"userProperties": [],
-						"typeProperties": {
-							"source": {
-								"type": "DelimitedTextSource",
-								"storeSettings": {
-									"type": "AzureBlobFSReadSettings",
-									"recursive": true,
-									"wildcardFolderPath": "source",
-									"wildcardFileName": "*.csv",
-									"enablePartitionDiscovery": false
-								},
-								"formatSettings": {
-									"type": "DelimitedTextReadSettings"
-								}
-							},
-							"sink": {
-								"type": "DelimitedTextSink",
-								"storeSettings": {
-									"type": "AzureBlobFSWriteSettings"
-								},
-								"formatSettings": {
-									"type": "DelimitedTextWriteSettings",
-									"quoteAllText": true,
-									"fileExtension": ".txt"
-								}
-							},
-							"enableStaging": false,
-							"translator": {
-								"type": "TabularTranslator",
-								"typeConversion": true,
-								"typeConversionSettings": {
-									"allowDataTruncation": true,
-									"treatBooleanAsNumber": false
-								}
-							}
-						},
-						"inputs": [
-							{
-								"referenceName": "ds_aa_source_copy_from_adls_to_bronze",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						],
-						"outputs": [
-							{
-								"referenceName": "ds_aa_target_copy_from_adls_to_adls",
-								"type": "DatasetReference",
-								"parameters": {}
-							}
-						]
-					},
-					{
 						"name": "Get Metadata to get the file list to copy",
 						"type": "GetMetadata",
 						"dependsOn": [],
@@ -426,7 +357,7 @@
 						"type": "Copy",
 						"dependsOn": [
 							{
-								"activity": "Copy data from adls to bronze adls",
+								"activity": "ForEach to filter largest file",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -492,6 +423,68 @@
 								"parameters": {}
 							}
 						]
+					},
+					{
+						"name": "Copy data from adls to bronze adls",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"storeSettings": {
+									"type": "AzureBlobFSReadSettings",
+									"recursive": true,
+									"wildcardFolderPath": "source",
+									"wildcardFileName": "*.csv",
+									"enablePartitionDiscovery": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "DelimitedTextSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "DelimitedTextWriteSettings",
+									"quoteAllText": true,
+									"fileExtension": ".txt"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ds_aa_source_copy_from_adls_to_bronze",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "ds_aa_target_copy_from_adls_to_adls",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						]
 					}
 				],
 				"policy": {
@@ -512,11 +505,11 @@
 				"annotations": []
 			},
 			"dependsOn": [
-				"[concat(variables('factoryId'), '/datasets/ds_aa_source_copy_from_adls_to_bronze')]",
-				"[concat(variables('factoryId'), '/datasets/ds_aa_target_copy_from_adls_to_adls')]",
 				"[concat(variables('factoryId'), '/datasets/ds_aa_get_metadata_file_list')]",
 				"[concat(variables('factoryId'), '/datasets/ds_aa_source_copy_largest_file_to_silver')]",
 				"[concat(variables('factoryId'), '/datasets/ds_aa_target_copy_largest_file_to_silver')]",
+				"[concat(variables('factoryId'), '/datasets/ds_aa_source_copy_from_adls_to_bronze')]",
+				"[concat(variables('factoryId'), '/datasets/ds_aa_target_copy_from_adls_to_adls')]",
 				"[concat(variables('factoryId'), '/datasets/ds_aa_get_metadata_for_size')]"
 			]
 		},
@@ -7051,7 +7044,6 @@
 				"typeProperties": {
 					"location": {
 						"type": "AzureBlobFSLocation",
-						"fileName": "*.csv",
 						"folderPath": "source",
 						"fileSystem": "gen2container"
 					},
