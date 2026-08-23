@@ -236,7 +236,7 @@
 						"type": "ForEach",
 						"dependsOn": [
 							{
-								"activity": "Get Metadata to get the file list to copy",
+								"activity": "Filter with sql word contains",
 								"dependencyConditions": [
 									"Succeeded"
 								]
@@ -245,7 +245,7 @@
 						"userProperties": [],
 						"typeProperties": {
 							"items": {
-								"value": "@activity('Get Metadata to get the file list to copy').output.childItems",
+								"value": "@activity('Filter with sql word contains').output.value",
 								"type": "Expression"
 							},
 							"isSequential": true,
@@ -485,6 +485,29 @@
 								"parameters": {}
 							}
 						]
+					},
+					{
+						"name": "Filter with sql word contains",
+						"type": "Filter",
+						"dependsOn": [
+							{
+								"activity": "Get Metadata to get the file list to copy",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"userProperties": [],
+						"typeProperties": {
+							"items": {
+								"value": "@activity('Get Metadata to get the file list to copy').output.childItems",
+								"type": "Expression"
+							},
+							"condition": {
+								"value": "@contains(item().name, '.csv')",
+								"type": "Expression"
+							}
+						}
 					}
 				],
 				"policy": {
