@@ -74,7 +74,6 @@
 				"frequency": "Month",
 				"interval": 1,
 				"startTime": "2026-08-21T10:04:00",
-				"endTime": "2026-08-24T19:06:36",
 				"timeZone": "India Standard Time",
 				"schedule": {
 					"monthlyOccurrences": [
